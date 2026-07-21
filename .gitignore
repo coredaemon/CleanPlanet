@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+.astro/
+.output/
+.vercel/
+.netlify/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+public/api/config.php
+**/config.php
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Generated media derivatives (исходники 01/ и 02/ коммитим; производные — генерируются скриптом)
+public/images/projects/collages/
+public/images/projects/before/
+public/images/projects/after/
+public/images/projects/thumbnails/
