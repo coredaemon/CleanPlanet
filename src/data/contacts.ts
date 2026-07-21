@@ -1,13 +1,12 @@
 export const contacts = {
   brand: 'CleanPlanet',
-  region: 'Москва и Московская область',
+  region: 'Москва и ближайшее Подмосковье',
   phone: '+7 966 752-34-52',
   phoneHref: 'tel:+79667523452',
-  telegram: 'Telegram',
-  telegramHref: 'https://t.me/+79667523452',
-  whatsapp: 'WhatsApp уточняется',
-  whatsappHref: 'https://t.me/+79667523452',
-  workHours: 'график обработки заявок уточняется',
+  whatsapp: 'WhatsApp',
+  whatsappHref: 'https://wa.me/79667523452',
+  // MAX-мессенджер клиент тоже хочет показывать — нужна ссылка/ID (пока нет).
+  workHours: 'Круглосуточно, без выходных',
   legalName: 'ИП Прокопьева Екатерина Григорьевна',
   inn: '772406153012',
   ogrnip: '319774600415292',
