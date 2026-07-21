@@ -1,0 +1,25 @@
+---
+import { getCollection } from 'astro:content';
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const pages = await getCollection('pages');
+const page = pages.find((entry) => entry.data.pageType === 'about');
+if (!page) throw new Error('About content not found');
+const { Content } = await page.render();
+---
+
+<BaseLayout
+  title={`${page.data.title} | CleanPlanet`}
+  description={page.data.description}
+  canonical="/about/"
+>
+  <Breadcrumbs items={[{ label: 'О сервисе', href: '/about/' }]} />
+  <section class="container py-12 md:py-20">
+    <article class="prose-clean max-w-4xl">
+      <Content />
+    </article>
+  </section>
+  <section class="container py-14 md:py-20"><LeadForm title="Связаться с сервисом" /></section>
+</BaseLayout>

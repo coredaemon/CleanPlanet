@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import { privacySections } from '@/lib/legal';
+---
+
+<BaseLayout
+  title="Политика конфиденциальности | CleanPlanet"
+  description="Политика конфиденциальности CleanPlanet и порядок использования cookie и аналитики."
+  canonical="/privacy/"
+>
+  <Breadcrumbs items={[{ label: 'Политика конфиденциальности', href: '/privacy/' }]} />
+  <section class="container py-12 md:py-20">
+    <article class="prose-clean max-w-4xl">
+      <h1>Политика конфиденциальности</h1>
+      {
+        privacySections.map(([title, text]) => (
+          <>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </>
+        ))
+      }
+    </article>
+  </section>
+</BaseLayout>

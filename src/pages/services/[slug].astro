@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import ServiceLayout from '@/layouts/ServiceLayout.astro';
+import { getServiceBySlug, services } from '@/data/services';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('pages', ({ data }) => Boolean(data.category));
+  return entries.map((entry) => ({
+    params: { slug: entry.data.slug ?? entry.id.replace(/\.md$/, '') },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const publicSlug = entry.data.slug ?? entry.id.replace(/\.md$/, '');
+const service = getServiceBySlug(publicSlug);
+if (!service) throw new Error(`Service metadata not found for ${publicSlug}`);
+const { Content } = await entry.render();
+---
+
+<ServiceLayout title={entry.data.title} description={entry.data.description} service={service}>
+  <Content />
+</ServiceLayout>
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: entry.data.title,
+    description: entry.data.description,
+    areaServed: 'Москва и Московская область',
+    provider: {
+      '@type': 'LocalBusiness',
+      name: 'CleanPlanet',
+    },
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      itemListElement: services
+        .filter((item) => item.category === service.category)
+        .slice(0, 4)
+        .map((item) => ({
+          '@type': 'Offer',
+          itemOffered: { '@type': 'Service', name: item.title },
+        })),
+    },
+  })}
+/>

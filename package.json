@@ -1,0 +1,39 @@
+{
+  "name": "site-cleanplanet",
+  "version": "1.0.0",
+  "description": "Static Astro website for CleanPlanet cleaning services.",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "npm run prepare-content && astro dev",
+    "prepare-content": "node scripts/sync-content.mjs && node scripts/import-media.mjs",
+    "build": "npm run prepare-content && astro check && astro build",
+    "check": "npm run prepare-content && astro check",
+    "lint": "prettier --check \"src/**/*.{astro,ts,css,json}\" \"scripts/**/*.mjs\" \"*.{mjs,json}\"",
+    "format": "prettier --write \"src/**/*.{astro,ts,css,json}\" \"scripts/**/*.mjs\" \"*.{mjs,json}\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coredaemon/CleanPlanet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coredaemon/CleanPlanet/issues"
+  },
+  "homepage": "https://github.com/coredaemon/CleanPlanet#readme",
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/tailwind": "^6.0.2",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "astro": "^5.18.2",
+    "prettier": "^3.9.6",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

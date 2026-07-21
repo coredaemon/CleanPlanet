@@ -1,0 +1,196 @@
+---
+import { calculatorOptions } from '@/data/prices';
+---
+
+<section id="calculator" class="rounded-xl bg-[var(--gradient-soft)] p-5 md:p-8">
+  <div class="grid gap-7 lg:grid-cols-[1.1fr_0.9fr]">
+    <form class="calculator grid gap-5" data-calculator>
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.08em] text-primary">
+          Предварительный расчёт
+        </p>
+        <h2 class="mt-2 text-3xl font-bold leading-tight text-[var(--color-text-heading)]">
+          Уточните параметры уборки
+        </h2>
+      </div>
+
+      <fieldset class="grid gap-3">
+        <legend class="font-semibold text-primary-dark">Тип помещения</legend>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {
+            calculatorOptions.objectTypes.map((item, index) => (
+              <label class="calc-option">
+                <input type="radio" name="objectType" value={item} checked={index === 0} />
+                <span>{item}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="grid gap-3">
+        <legend class="font-semibold text-primary-dark">Вид уборки</legend>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {
+            calculatorOptions.cleaningTypes.map((item, index) => (
+              <label class="calc-option">
+                <input type="radio" name="cleaningType" value={item} checked={index === 0} />
+                <span>{item}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        <label class="grid gap-2 text-sm font-semibold text-primary-dark"
+          >Комнат
+          <input class="form-input" name="rooms" type="number" min="1" max="12" value="2" />
+        </label>
+        <label class="grid gap-2 text-sm font-semibold text-primary-dark"
+          >Площадь, м²
+          <input class="form-input" name="area" type="number" min="15" max="1000" value="45" />
+        </label>
+        <label class="grid gap-2 text-sm font-semibold text-primary-dark"
+          >Санузлов
+          <input class="form-input" name="bathrooms" type="number" min="1" max="10" value="1" />
+        </label>
+      </div>
+
+      <fieldset class="grid gap-3">
+        <legend class="font-semibold text-primary-dark">Дополнительные услуги</legend>
+        <div class="grid gap-2 sm:grid-cols-2">
+          {
+            calculatorOptions.additionalServices.map((item) => (
+              <label class="calc-option">
+                <input type="checkbox" name="additionalServices" value={item} />
+                <span>{item}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="grid gap-4 sm:grid-cols-3">
+        <label class="grid gap-2 text-sm font-semibold text-primary-dark"
+          >Состояние
+          <select class="form-input" name="pollutionLevel">
+            {calculatorOptions.pollutionLevels.map((item) => <option>{item}</option>)}
+          </select>
+        </label>
+        <label class="grid gap-2 text-sm font-semibold text-primary-dark"
+          >Срочность
+          <select class="form-input" name="urgency">
+            {calculatorOptions.urgency.map((item) => <option>{item}</option>)}
+          </select>
+        </label>
+        <label
+          class="flex items-center gap-3 rounded-medium border border-border bg-white p-4 text-sm font-semibold text-primary-dark"
+        >
+          <input class="h-5 w-5" name="outsideMkad" type="checkbox" />
+          За МКАД
+        </label>
+      </div>
+    </form>
+
+    <aside class="self-start rounded-xl border border-border bg-white p-5 shadow-sm md:p-7">
+      <div class="h-2 overflow-hidden rounded-pill bg-[var(--color-background-blue)]">
+        <div class="h-full w-3/4 rounded-pill bg-[var(--gradient-primary)]"></div>
+      </div>
+      <p class="mt-6 text-sm font-semibold uppercase tracking-[0.08em] text-primary">Итог</p>
+      <h3
+        class="mt-2 text-2xl font-bold leading-tight text-[var(--color-text-heading)]"
+        data-calc-label
+      >
+        Предварительная стоимость рассчитывается индивидуально
+      </h3>
+      <ul class="mt-5 grid gap-2 text-sm text-muted" data-calc-summary></ul>
+      <div class="mt-6 flex flex-col gap-3">
+        <a
+          class="inline-flex min-h-12 items-center justify-center rounded-medium bg-primary px-5 font-semibold text-white"
+          href="#lead-form"
+          data-track="calculator_finish">Оставить заявку</a
+        >
+        <a
+          class="inline-flex min-h-12 items-center justify-center rounded-medium border border-primary px-5 font-semibold text-primary"
+          href="#photo-form">Отправить фотографии</a
+        >
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script is:inline>
+  const calculators = document.querySelectorAll('[data-calculator]');
+  const buildSummary = (form) => {
+    const data = new FormData(form);
+    const services = data.getAll('additionalServices');
+    return [
+      `${data.get('objectType')}, ${String(data.get('cleaningType')).toLowerCase()} уборка`,
+      `${data.get('area')} м², комнат: ${data.get('rooms')}, санузлов: ${data.get('bathrooms')}`,
+      services.length
+        ? `Дополнительно: ${services.join(', ')}`
+        : 'Дополнительные услуги не выбраны',
+      `Состояние: ${data.get('pollutionLevel')}`,
+      data.get('outsideMkad') ? 'Адрес за МКАД' : 'Москва или ближайшая зона',
+      `Срочность: ${data.get('urgency')}`,
+    ];
+  };
+
+  calculators.forEach((form) => {
+    const section = form.closest('section');
+    const label = section.querySelector('[data-calc-label]');
+    const summary = section.querySelector('[data-calc-summary]');
+    const update = () => {
+      label.textContent = 'Предварительная стоимость рассчитывается индивидуально';
+      summary.innerHTML = buildSummary(form)
+        .map((item) => `<li>${item}</li>`)
+        .join('');
+    };
+    form.addEventListener('input', () => {
+      update();
+      window.cleanPlanetTrack?.('calculator_start');
+    });
+    update();
+  });
+</script>
+
+<style>
+  .calc-option {
+    display: flex;
+    min-height: 52px;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: white;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 650;
+    color: var(--color-primary-dark);
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .calc-option:has(input:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-accent-soft);
+  }
+
+  .calc-option:hover {
+    transform: translateY(-1px);
+  }
+
+  .form-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: #fff;
+    padding: 0 1rem;
+  }
+</style>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import { personalDataSections } from '@/lib/legal';
+---
+
+<BaseLayout
+  title="Согласие на обработку персональных данных | CleanPlanet"
+  description="Согласие на обработку персональных данных при отправке форм на сайте CleanPlanet."
+  canonical="/personal-data/"
+>
+  <Breadcrumbs items={[{ label: 'Персональные данные', href: '/personal-data/' }]} />
+  <section class="container py-12 md:py-20">
+    <article class="prose-clean max-w-4xl">
+      <h1>Согласие на обработку персональных данных</h1>
+      {
+        personalDataSections.map(([title, text]) => (
+          <>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </>
+        ))
+      }
+    </article>
+  </section>
+</BaseLayout>

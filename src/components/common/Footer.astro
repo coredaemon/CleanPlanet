@@ -1,0 +1,73 @@
+---
+import { contacts } from '@/data/contacts';
+import { legalNavigation, mainNavigation } from '@/data/navigation';
+import { featuredServices } from '@/data/services';
+---
+
+<footer class="bg-[var(--color-primary-dark)] text-white">
+  <div class="container grid gap-10 py-14 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
+    <div>
+      <a href="/" class="text-2xl font-bold tracking-normal">CleanPlanet</a>
+      <p class="mt-4 max-w-sm text-sm text-white/75">
+        Клининговые услуги для квартир, домов, офисов и коммерческих помещений в Москве и Московской
+        области.
+      </p>
+      <p class="mt-5 text-sm text-white/70">
+        Реквизиты: {contacts.legalName}, ИНН {contacts.inn}, ОГРНИП {contacts.ogrnip}
+      </p>
+    </div>
+    <div>
+      <h2 class="text-base font-semibold">Разделы</h2>
+      <nav class="mt-4 grid gap-2 text-sm text-white/78">
+        {
+          mainNavigation.map((item) => (
+            <a class="hover:text-white" href={item.href}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+    <div>
+      <h2 class="text-base font-semibold">Популярные услуги</h2>
+      <nav class="mt-4 grid gap-2 text-sm text-white/78">
+        {
+          featuredServices.slice(0, 6).map((service) => (
+            <a class="hover:text-white" href={`/services/${service.slug}/`}>
+              {service.shortTitle}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+    <div>
+      <h2 class="text-base font-semibold">Контакты</h2>
+      <div class="mt-4 grid gap-2 text-sm text-white/78">
+        <a class="hover:text-white" href={contacts.phoneHref} data-track="phone_click"
+          >{contacts.phone}</a
+        >
+        <a class="hover:text-white" href={`mailto:${contacts.email}`}>{contacts.email}</a>
+        <span>{contacts.workHours}</span>
+        <span>{contacts.region}</span>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-white/12">
+    <div
+      class="container flex flex-col gap-3 py-5 text-xs text-white/65 md:flex-row md:items-center md:justify-between"
+    >
+      <p>
+        © {new Date().getFullYear()} CleanPlanet. Информация на сайте не является публичной офертой.
+      </p>
+      <nav class="flex flex-wrap gap-4">
+        {
+          legalNavigation.map((item) => (
+            <a class="hover:text-white" href={item.href}>
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+  </div>
+</footer>

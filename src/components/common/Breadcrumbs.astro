@@ -1,0 +1,43 @@
+---
+interface Crumb {
+  label: string;
+  href: string;
+}
+
+const { items = [] } = Astro.props as { items: Crumb[] };
+const all = [{ label: 'Главная', href: '/' }, ...items];
+---
+
+<nav class="container py-5 text-sm text-muted" aria-label="Хлебные крошки">
+  <ol class="flex flex-wrap gap-2">
+    {
+      all.map((item, index) => (
+        <li class="flex items-center gap-2">
+          {index > 0 && <span aria-hidden="true">/</span>}
+          {index === all.length - 1 ? (
+            <span>{item.label}</span>
+          ) : (
+            <a class="hover:text-primary" href={item.href}>
+              {item.label}
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: all.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: `https://cleanplanet.example${item.href}`,
+    })),
+  })}
+/>

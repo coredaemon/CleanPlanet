@@ -1,0 +1,26 @@
+---
+
+---
+
+<script is:inline>
+  window.cleanPlanetTrack = function (eventName, payload = {}) {
+    if (window.ym && window.cleanPlanetAnalyticsAllowed) {
+      window.ym(undefined, 'reachGoal', eventName, payload);
+    }
+  };
+
+  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+  const url = new URL(window.location.href);
+  const storedUtm = {};
+  utmKeys.forEach((key) => {
+    const value = url.searchParams.get(key);
+    if (value) storedUtm[key] = value;
+  });
+  if (Object.keys(storedUtm).length)
+    sessionStorage.setItem('cleanplanet_utm', JSON.stringify(storedUtm));
+
+  document.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-track]');
+    if (target) window.cleanPlanetTrack(target.dataset.track);
+  });
+</script>

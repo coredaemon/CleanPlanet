@@ -1,0 +1,54 @@
+---
+const faqs = [
+  [
+    'Как определяется окончательная стоимость?',
+    'Итоговая стоимость зависит от площади, состояния помещения, состава работ, срочности и адреса объекта.',
+  ],
+  [
+    'Можно ли отправить фотографии?',
+    'Да, фотографии помогают быстрее оценить объём работ и подготовить предварительный расчёт.',
+  ],
+  [
+    'Нужно ли покупать средства?',
+    'Состав средств и инвентаря уточняется при подтверждении заявки.',
+  ],
+  [
+    'Работаете ли вы за МКАД?',
+    'Зона выезда и условия по удалённости уточняются при обработке заявки.',
+  ],
+];
+---
+
+<section class="bg-[var(--color-background-alt)] py-14 md:py-20">
+  <div class="container max-w-4xl">
+    <h2 class="text-3xl font-bold leading-tight text-[var(--color-text-heading)]">
+      Ответы на вопросы
+    </h2>
+    <div class="mt-8 grid gap-3">
+      {
+        faqs.map(([question, answer]) => (
+          <details class="rounded-large border border-border bg-white p-5">
+            <summary class="cursor-pointer font-bold text-[var(--color-text-heading)]">
+              {question}
+            </summary>
+            <p class="mt-3 text-muted">{answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(([name, text]) => ({
+      '@type': 'Question',
+      name,
+      acceptedAnswer: { '@type': 'Answer', text },
+    })),
+  })}
+/>

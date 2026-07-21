@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import Calculator from '@/components/calculator/Calculator.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import Hero from '@/components/sections/Hero.astro';
+import ServiceCards from '@/components/sections/ServiceCards.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { businessServices, homeServices, services } from '@/data/services';
+
+const pages = await getCollection('pages');
+const page = pages.find((entry) => entry.data.pageType === 'services');
+if (!page) throw new Error('Services content not found');
+const { Content } = await page.render();
+---
+
+<BaseLayout
+  title={`${page.data.title} | CleanPlanet`}
+  description={page.data.description}
+  canonical="/services/"
+>
+  <Breadcrumbs items={[{ label: 'Услуги', href: '/services/' }]} />
+  <Hero title={page.data.title} description={page.data.description} eyebrow="Каталог" />
+  <section class="container py-12">
+    <div class="prose-clean max-w-4xl"><Content /></div>
+  </section>
+  <ServiceCards
+    services={homeServices}
+    title="Услуги для квартир и домов"
+    lead="Разовые, регулярные и послеремонтные работы для жилых помещений."
+  />
+  <ServiceCards
+    services={businessServices}
+    title="Услуги для бизнеса"
+    lead="Клининг офисов, торговых помещений и объектов с регулярной посещаемостью."
+  />
+  <section class="container py-10"><Calculator /></section>
+  <section class="container py-14 md:py-20"><LeadForm title="Помочь выбрать услугу" /></section>
+</BaseLayout>
+
+<script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: services.map((service, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: service.title,
+      url: `https://cleanplanet.example/services/${service.slug}/`,
+    })),
+  })}
+/>

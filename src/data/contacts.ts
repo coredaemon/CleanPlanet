@@ -1,0 +1,21 @@
+export const contacts = {
+  brand: 'CleanPlanet',
+  region: 'Москва и Московская область',
+  phone: 'телефон уточняется',
+  phoneHref: '#lead-form',
+  email: '[EMAIL]',
+  telegram: 'Telegram уточняется',
+  telegramHref: '#lead-form',
+  whatsapp: 'WhatsApp уточняется',
+  whatsappHref: '#lead-form',
+  workHours: 'график обработки заявок уточняется',
+  legalName: '[ПОЛНОЕ НАИМЕНОВАНИЕ ИП]',
+  inn: '[ИНН]',
+  ogrnip: '[ОГРНИП]',
+  legalAddress: '[АДРЕС РЕГИСТРАЦИИ]',
+  analytics: {
+    yandexMetrikaId: '',
+    googleVerification: '',
+    yandexWebmasterVerification: '',
+  },
+} as const;

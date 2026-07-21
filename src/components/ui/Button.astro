@@ -1,0 +1,41 @@
+---
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'soft';
+  type?: 'button' | 'submit';
+  class?: string;
+  dataEvent?: string;
+}
+
+const {
+  href,
+  variant = 'primary',
+  type = 'button',
+  class: className = '',
+  dataEvent,
+} = Astro.props;
+const classes = [
+  'inline-flex min-h-12 items-center justify-center gap-2 rounded-medium px-5 py-3 text-center text-sm font-semibold transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
+  variant === 'primary' &&
+    'bg-primary text-white shadow-sm hover:bg-primary-hover active:bg-[var(--color-primary-active)]',
+  variant === 'secondary' &&
+    'border border-primary bg-white text-primary hover:bg-[var(--color-surface-hover)]',
+  variant === 'soft' &&
+    'bg-[var(--color-accent-soft)] text-[var(--color-primary-dark)] hover:bg-[var(--color-background-blue)]',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+{
+  href ? (
+    <a class={classes} href={href} data-track={dataEvent}>
+      <slot />
+    </a>
+  ) : (
+    <button class={classes} type={type} data-track={dataEvent}>
+      <slot />
+    </button>
+  )
+}

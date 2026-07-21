@@ -1,0 +1,130 @@
+{
+  "collages": [
+    {
+      "id": "010",
+      "src": "/images/projects/collages/project-010-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-010-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    },
+    {
+      "id": "011",
+      "src": "/images/projects/collages/project-011-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-011-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    },
+    {
+      "id": "012",
+      "src": "/images/projects/collages/project-012-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-012-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    },
+    {
+      "id": "015",
+      "src": "/images/projects/collages/project-015-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-015-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    },
+    {
+      "id": "016",
+      "src": "/images/projects/collages/project-016-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-016-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    },
+    {
+      "id": "09",
+      "src": "/images/projects/collages/project-09-before-after.webp",
+      "thumb": "/images/projects/thumbnails/project-09-thumb.webp",
+      "alt": "Результат уборки помещения до и после"
+    }
+  ],
+  "pairs": [
+    {
+      "id": "01",
+      "before": "/images/projects/before/project-01-before.webp",
+      "after": "/images/projects/after/project-01-after.webp",
+      "thumb": "/images/projects/thumbnails/project-01-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "02",
+      "before": "/images/projects/before/project-02-before.webp",
+      "after": "/images/projects/after/project-02-after.webp",
+      "thumb": "/images/projects/thumbnails/project-02-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "03",
+      "before": "/images/projects/before/project-03-before.webp",
+      "after": "/images/projects/after/project-03-after.webp",
+      "thumb": "/images/projects/thumbnails/project-03-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "04",
+      "before": "/images/projects/before/project-04-before.webp",
+      "after": "/images/projects/after/project-04-after.webp",
+      "thumb": "/images/projects/thumbnails/project-04-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "05",
+      "before": "/images/projects/before/project-05-before.webp",
+      "after": "/images/projects/after/project-05-after.webp",
+      "thumb": "/images/projects/thumbnails/project-05-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "06",
+      "before": "/images/projects/before/project-06-before.webp",
+      "after": "/images/projects/after/project-06-after.webp",
+      "thumb": "/images/projects/thumbnails/project-06-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "07",
+      "before": "/images/projects/before/project-07-before.webp",
+      "after": "/images/projects/after/project-07-after.webp",
+      "thumb": "/images/projects/thumbnails/project-07-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "08",
+      "before": "/images/projects/before/project-08-before.webp",
+      "after": "/images/projects/after/project-08-after.webp",
+      "thumb": "/images/projects/thumbnails/project-08-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "013",
+      "before": "/images/projects/before/project-013-before.webp",
+      "after": "/images/projects/after/project-013-after.webp",
+      "thumb": "/images/projects/thumbnails/project-013-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "014",
+      "before": "/images/projects/before/project-014-before.webp",
+      "after": "/images/projects/after/project-014-after.webp",
+      "thumb": "/images/projects/thumbnails/project-014-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    },
+    {
+      "id": "017",
+      "before": "/images/projects/before/project-017-before.webp",
+      "after": "/images/projects/after/project-017-after.webp",
+      "thumb": "/images/projects/thumbnails/project-017-after-thumb.webp",
+      "beforeAlt": "Помещение до уборки",
+      "afterAlt": "Помещение после уборки"
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+---
+interface Props {
+  title?: string;
+  formType?: 'lead' | 'quick' | 'callback' | 'urgent' | 'business' | 'photo';
+  service?: string;
+}
+
+const { title = 'Оставьте заявку', formType = 'lead', service = '' } = Astro.props as Props;
+const isBusiness = formType === 'business';
+const isPhoto = formType === 'photo';
+---
+
+<form
+  id={formType === 'lead' ? 'lead-form' : undefined}
+  class="lead-form grid gap-4 rounded-xl border border-border bg-white p-5 shadow-sm md:p-7"
+  action={isPhoto ? '/api/upload-images.php' : '/api/send-lead.php'}
+  method="post"
+  enctype={isPhoto ? 'multipart/form-data' : undefined}
+  data-form-type={formType}
+  novalidate
+>
+  <div>
+    <h2 class="text-2xl font-bold leading-tight text-[var(--color-text-heading)]">{title}</h2>
+    <p class="mt-2 text-sm text-muted">
+      Ответим после обработки заявки. Поля со звёздочкой обязательны.
+    </p>
+  </div>
+
+  <input type="hidden" name="formType" value={formType} />
+  <input type="hidden" name="pageTitle" value={Astro.url.pathname} />
+  <input type="hidden" name="service" value={service} />
+  <input type="hidden" name="utm" value="" data-utm-field />
+  <label class="hidden">
+    Не заполняйте это поле
+    <input type="text" name="website" tabindex="-1" autocomplete="off" />
+  </label>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+      Имя
+      <input
+        class="form-input"
+        name="name"
+        autocomplete="name"
+        placeholder="Как к вам обращаться"
+      />
+    </label>
+    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+      Телефон *
+      <input
+        class="form-input"
+        name="phone"
+        autocomplete="tel"
+        inputmode="tel"
+        required
+        placeholder="+7 ___ ___-__-__"
+      />
+    </label>
+  </div>
+
+  {
+    isBusiness && (
+      <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+        Организация
+        <input
+          class="form-input"
+          name="company"
+          autocomplete="organization"
+          placeholder="Название или формат объекта"
+        />
+      </label>
+    )
+  }
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+      Услуга
+      <select class="form-input" name="selectedService">
+        <option value="">Выберите услугу</option>
+        <option>Уборка квартиры</option>
+        <option>Генеральная уборка</option>
+        <option>Уборка после ремонта</option>
+        <option>Уборка дома</option>
+        <option>Уборка офиса</option>
+        <option>Коммерческий клининг</option>
+      </select>
+    </label>
+    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+      Площадь или адрес
+      <input class="form-input" name="objectDetails" placeholder="Например: 56 м², Москва" />
+    </label>
+  </div>
+
+  {
+    isPhoto && (
+      <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+        Фотографии объекта
+        <input
+          class="form-input min-h-14 pt-3"
+          name="photos[]"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+        />
+        <span class="text-xs font-normal text-muted">JPG, PNG или WebP, до 8 МБ каждый.</span>
+      </label>
+    )
+  }
+
+  <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+    Комментарий
+    <textarea
+      class="form-input min-h-28 resize-y py-3"
+      name="comment"
+      placeholder="Что нужно убрать, удобное время, дополнительные пожелания"></textarea>
+  </label>
+
+  <label class="flex items-start gap-3 text-sm text-muted">
+    <input
+      class="mt-1 h-5 w-5 shrink-0 rounded border-border text-primary"
+      type="checkbox"
+      name="consent"
+      required
+    />
+    <span>
+      Я согласен на обработку персональных данных и принимаю условия
+      <a class="font-semibold text-primary underline" href="/personal-data/">согласия</a> и
+      <a class="font-semibold text-primary underline" href="/privacy/"
+        >политики конфиденциальности</a
+      >.
+    </span>
+  </label>
+
+  <div
+    class="form-status hidden rounded-medium border border-border bg-[var(--color-background-alt)] p-3 text-sm"
+    role="status"
+  >
+  </div>
+  <button
+    class="min-h-12 rounded-medium bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60"
+    type="submit"
+  >
+    Отправить заявку
+  </button>
+</form>
+
+<script is:inline>
+  document.querySelectorAll('.lead-form').forEach((form) => {
+    const status = form.querySelector('.form-status');
+    const utmInput = form.querySelector('[data-utm-field]');
+    if (utmInput) utmInput.value = sessionStorage.getItem('cleanplanet_utm') || '';
+
+    form.addEventListener('input', () => window.cleanPlanetTrack?.('form_start'), { once: true });
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        status.textContent = 'Проверьте обязательные поля и согласие на обработку данных.';
+        status.classList.remove('hidden');
+        window.cleanPlanetTrack?.('form_error');
+        return;
+      }
+
+      const button = form.querySelector('button[type="submit"]');
+      button.disabled = true;
+      button.textContent = 'Отправляем...';
+      status.textContent = 'Заявка отправляется.';
+      status.classList.remove('hidden');
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+        });
+        if (!response.ok) throw new Error('Request failed');
+        window.cleanPlanetTrack?.(
+          form.dataset.formType === 'photo' ? 'photo_send' : 'lead_success',
+        );
+        window.location.href = '/thank-you/';
+      } catch {
+        status.textContent =
+          'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
+        button.disabled = false;
+        button.textContent = 'Отправить заявку';
+        window.cleanPlanetTrack?.('form_error');
+      }
+    });
+  });
+</script>
+
+<style>
+  .form-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: #fff;
+    padding: 0 1rem;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .form-input:focus {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 3px rgba(38, 185, 221, 0.18);
+    outline: none;
+  }
+</style>

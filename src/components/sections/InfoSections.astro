@@ -1,0 +1,59 @@
+---
+
+---
+
+<section class="bg-[var(--color-background-alt)] py-14 md:py-20">
+  <div class="container grid gap-8 lg:grid-cols-3">
+    <div class="lg:col-span-1">
+      <h2 class="text-3xl font-bold leading-tight text-[var(--color-text-heading)]">
+        Как оформить заказ
+      </h2>
+      <p class="mt-3 text-muted">
+        Простой сценарий: выбрать услугу, уточнить параметры и оставить контакт для подтверждения.
+      </p>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3 lg:col-span-2">
+      {
+        ['Выберите услугу', 'Уточните детали', 'Получите расчёт'].map((item, index) => (
+          <div class="rounded-large border border-border bg-white p-5">
+            <p class="text-sm font-bold text-primary">0{index + 1}</p>
+            <h3 class="mt-3 text-lg font-bold text-[var(--color-text-heading)]">{item}</h3>
+            <p class="mt-2 text-sm text-muted">
+              Состав работ и стоимость подтверждаются после обработки заявки.
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<section class="py-14 md:py-20">
+  <div class="container grid gap-8 md:grid-cols-2">
+    <div>
+      <h2 class="text-3xl font-bold leading-tight text-[var(--color-text-heading)]">
+        Что входит в уборку
+      </h2>
+      <p class="mt-3 text-muted">
+        Перечень работ зависит от выбранной услуги. Базово можно согласовать уборку комнат, кухни,
+        санузлов, коридора и дополнительные задачи.
+      </p>
+    </div>
+    <div class="grid gap-3">
+      {
+        [
+          'Пылесосим и моем полы',
+          'Протираем открытые поверхности',
+          'Очищаем сантехнику',
+          'Убираем кухонную зону',
+          'Добавляем отдельные работы по запросу',
+        ].map((item) => (
+          <div class="flex gap-3 rounded-medium bg-[var(--color-accent-soft)] p-4 text-sm font-semibold text-primary-dark">
+            <span class="mt-1 h-2.5 w-2.5 rounded-full bg-accent" />
+            {item}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

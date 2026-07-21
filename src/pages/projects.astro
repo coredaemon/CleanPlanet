@@ -1,0 +1,70 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import projectsData from '@/data/projects.json';
+
+const projects = projectsData as {
+  collages: { id: string; src: string; alt: string }[];
+  pairs: { id: string; before: string; after: string; beforeAlt: string; afterAlt: string }[];
+};
+---
+
+<BaseLayout
+  title="Примеры работ до и после | CleanPlanet"
+  description="Галерея фотографий до и после уборки из предоставленных исходников CleanPlanet."
+  canonical="/projects/"
+>
+  <Breadcrumbs items={[{ label: 'Примеры работ', href: '/projects/' }]} />
+  <section class="container py-12 md:py-20">
+    <h1
+      class="text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight text-[var(--color-text-heading)]"
+    >
+      Примеры работ
+    </h1>
+    <p class="mt-4 max-w-3xl text-lg text-muted">
+      Фотографии показываются без выдуманных описаний кейсов. Подробные подписи можно добавить после
+      согласования.
+    </p>
+    <h2 class="mt-12 text-3xl font-bold text-[var(--color-text-heading)]">Готовые коллажи</h2>
+    <div class="mt-6 grid gap-5 md:grid-cols-2">
+      {
+        projects.collages.map((item) => (
+          <img
+            class="rounded-large border border-border object-cover shadow-sm"
+            src={item.src}
+            alt={item.alt}
+            loading="lazy"
+          />
+        ))
+      }
+    </div>
+    <h2 class="mt-14 text-3xl font-bold text-[var(--color-text-heading)]">Пары до и после</h2>
+    <div class="mt-6 grid gap-6">
+      {
+        projects.pairs.map((item) => (
+          <figure class="grid gap-3 rounded-large border border-border bg-white p-3 shadow-sm md:grid-cols-2">
+            <img
+              class="aspect-[4/3] w-full rounded-medium object-cover"
+              src={item.before}
+              alt={item.beforeAlt}
+              loading="lazy"
+            />
+            <img
+              class="aspect-[4/3] w-full rounded-medium object-cover"
+              src={item.after}
+              alt={item.afterAlt}
+              loading="lazy"
+            />
+            <figcaption class="text-sm text-muted md:col-span-2">
+              До и после уборки. Детали объекта уточняются.
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </section>
+  <section id="photo-form" class="container py-14 md:py-20">
+    <LeadForm title="Отправить фотографии для оценки" formType="photo" />
+  </section>
+</BaseLayout>

@@ -1,0 +1,51 @@
+---
+import Button from '@/components/ui/Button.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+  image?: string;
+}
+
+const {
+  title,
+  description,
+  eyebrow = 'CleanPlanet',
+  image = '/images/projects/collages/project-09-before-after.webp',
+} = Astro.props as Props;
+---
+
+<section class="relative overflow-hidden bg-[var(--gradient-soft)]">
+  <div class="container grid gap-10 py-14 md:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-[0.1em] text-primary">{eyebrow}</p>
+      <h1
+        class="mt-4 max-w-4xl text-[clamp(2rem,6vw,4rem)] font-bold leading-[1.08] text-[var(--color-text-heading)]"
+      >
+        {title}
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg text-muted">{description}</p>
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Button href="#calculator" dataEvent="calculator_start">Рассчитать стоимость</Button>
+        <Button href="#lead-form" variant="secondary">Оставить заявку</Button>
+        <Button href="#photo-form" variant="soft">Отправить фотографии</Button>
+      </div>
+      <p class="mt-5 max-w-xl text-sm text-muted">
+        Итоговая стоимость зависит от площади, состояния помещения, состава работ и адреса объекта.
+      </p>
+    </div>
+    <div class="relative">
+      <div
+        class="absolute -right-8 -top-8 h-32 w-32 rounded-full border border-white/70 bg-white/50"
+      >
+      </div>
+      <img
+        class="relative aspect-[4/3] w-full rounded-xl border border-white object-cover shadow-md"
+        src={image}
+        alt="Пример результата уборки до и после"
+        fetchpriority="high"
+      />
+    </div>
+  </div>
+</section>

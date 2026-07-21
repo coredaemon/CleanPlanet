@@ -1,0 +1,47 @@
+---
+import type { Service } from '@/data/services';
+
+interface Props {
+  services: Service[];
+  title?: string;
+  lead?: string;
+}
+
+const {
+  services,
+  title = 'Услуги',
+  lead = 'Выберите подходящее направление и перейдите на страницу услуги.',
+} = Astro.props as Props;
+---
+
+<section class="py-14 md:py-20">
+  <div class="container">
+    <div class="max-w-3xl">
+      <h2 class="text-3xl font-bold leading-tight text-[var(--color-text-heading)] md:text-4xl">
+        {title}
+      </h2>
+      <p class="mt-3 text-lg text-muted">{lead}</p>
+    </div>
+    <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        services.map((service) => (
+          <article class="group rounded-large border border-border bg-white p-5 transition hover:-translate-y-1 hover:border-[var(--color-border-strong)] hover:shadow-sm">
+            <div
+              class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-medium bg-[var(--color-accent-soft)] text-primary"
+              aria-hidden="true"
+            >
+              <span class="h-4 w-4 rounded-full border-2 border-current" />
+            </div>
+            <h3 class="text-xl font-bold leading-tight text-[var(--color-text-heading)]">
+              <a class="after:absolute after:inset-0" href={`/services/${service.slug}/`}>
+                {service.shortTitle}
+              </a>
+            </h3>
+            <p class="mt-3 text-sm text-muted">{service.description}</p>
+            <p class="mt-4 text-sm font-bold text-primary">Стоимость уточняется</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

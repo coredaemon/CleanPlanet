@@ -1,0 +1,58 @@
+---
+import Button from '@/components/ui/Button.astro';
+import Logo from './Logo.astro';
+import { contacts } from '@/data/contacts';
+import { mainNavigation } from '@/data/navigation';
+---
+
+<header class="sticky top-0 z-40 border-b border-border bg-white/92 backdrop-blur">
+  <div class="container flex min-h-20 items-center justify-between gap-5">
+    <Logo />
+    <nav
+      class="hidden items-center gap-6 text-sm font-semibold text-[var(--color-primary-dark)] lg:flex"
+      aria-label="Основная навигация"
+    >
+      {
+        mainNavigation.map((item) => (
+          <a class="hover:text-primary" href={item.href}>
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="hidden items-center gap-3 md:flex">
+      <a
+        class="text-sm font-semibold text-primary-dark hover:text-primary"
+        href={contacts.phoneHref}
+        data-track="phone_click"
+      >
+        {contacts.phone}
+      </a>
+      <Button href="/#calculator" dataEvent="calculator_start">Рассчитать</Button>
+    </div>
+    <details class="relative md:hidden">
+      <summary
+        class="flex min-h-11 cursor-pointer list-none items-center rounded-medium border border-border px-4 text-sm font-semibold text-primary-dark"
+      >
+        Меню
+      </summary>
+      <div
+        class="absolute right-0 top-14 w-[min(88vw,320px)] rounded-large border border-border bg-white p-4 shadow-md"
+      >
+        <nav class="grid gap-2" aria-label="Мобильная навигация">
+          {
+            mainNavigation.map((item) => (
+              <a
+                class="rounded-small px-3 py-3 font-semibold hover:bg-[var(--color-background-alt)]"
+                href={item.href}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <Button class="mt-3 w-full" href="/#calculator">Рассчитать стоимость</Button>
+      </div>
+    </details>
+  </div>
+</header>

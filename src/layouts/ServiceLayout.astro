@@ -1,0 +1,68 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import Calculator from '@/components/calculator/Calculator.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import Hero from '@/components/sections/Hero.astro';
+import Faq from '@/components/sections/Faq.astro';
+import ServiceCards from '@/components/sections/ServiceCards.astro';
+import BaseLayout from './BaseLayout.astro';
+import { services, type Service } from '@/data/services';
+
+interface Props {
+  title: string;
+  description: string;
+  service: Service;
+}
+
+const { title, description, service } = Astro.props as Props;
+const related = services
+  .filter((item) => item.category === service.category && item.slug !== service.slug)
+  .slice(0, 3);
+---
+
+<BaseLayout
+  title={`${title} | CleanPlanet`}
+  description={description}
+  canonical={`/services/${service.slug}/`}
+>
+  <Breadcrumbs
+    items={[
+      { label: 'Услуги', href: '/services/' },
+      { label: service.shortTitle, href: `/services/${service.slug}/` },
+    ]}
+  />
+  <Hero
+    title={title}
+    description={description}
+    eyebrow={service.category === 'home' ? 'Для дома' : 'Для бизнеса'}
+  />
+  <section class="py-12 md:py-16">
+    <div class="container grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <article class="prose-clean min-w-0">
+        <slot />
+      </article>
+      <aside class="space-y-4">
+        <div class="rounded-large border border-border bg-[var(--color-accent-soft)] p-5">
+          <p class="text-sm font-semibold text-primary">Предварительная стоимость</p>
+          <p class="mt-2 text-2xl font-bold text-[var(--color-text-heading)]">уточняется</p>
+          <p class="mt-2 text-sm text-muted">
+            Цена подтверждается после уточнения площади, состояния и состава работ.
+          </p>
+        </div>
+        <LeadForm title="Заявка по услуге" service={service.title} />
+      </aside>
+    </div>
+  </section>
+  <section class="container py-10">
+    <Calculator />
+  </section>
+  <ServiceCards
+    services={related}
+    title="Связанные услуги"
+    lead="Эти направления часто рассматривают вместе."
+  />
+  <Faq />
+  <section id="photo-form" class="container py-14 md:py-20">
+    <LeadForm title="Оценка по фотографиям" formType="photo" service={service.title} />
+  </section>
+</BaseLayout>

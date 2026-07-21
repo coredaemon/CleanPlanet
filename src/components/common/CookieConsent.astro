@@ -1,0 +1,45 @@
+---
+
+---
+
+<div
+  id="cookie-consent"
+  class="fixed bottom-20 left-4 right-4 z-50 hidden rounded-large border border-border bg-white p-4 shadow-md md:bottom-5 md:left-auto md:right-5 md:max-w-md"
+>
+  <p class="text-sm text-muted">
+    Сайт использует cookie и может подключать аналитику после вашего согласия. Подробнее — в
+    <a class="font-semibold text-primary underline" href="/privacy/">политике конфиденциальности</a
+    >.
+  </p>
+  <div class="mt-4 flex gap-2">
+    <button
+      class="min-h-11 rounded-medium bg-primary px-4 text-sm font-semibold text-white"
+      type="button"
+      data-cookie-accept>Принять</button
+    >
+    <button
+      class="min-h-11 rounded-medium border border-border px-4 text-sm font-semibold text-primary-dark"
+      type="button"
+      data-cookie-decline>Отклонить</button
+    >
+  </div>
+</div>
+
+<script is:inline>
+  const key = 'cleanplanet_cookie_consent';
+  const banner = document.querySelector('#cookie-consent');
+  const loadAnalytics = () => {
+    window.cleanPlanetAnalyticsAllowed = true;
+  };
+  if (localStorage.getItem(key) === 'accepted') loadAnalytics();
+  if (!localStorage.getItem(key)) banner?.classList.remove('hidden');
+  document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => {
+    localStorage.setItem(key, 'accepted');
+    banner?.classList.add('hidden');
+    loadAnalytics();
+  });
+  document.querySelector('[data-cookie-decline]')?.addEventListener('click', () => {
+    localStorage.setItem(key, 'declined');
+    banner?.classList.add('hidden');
+  });
+</script>

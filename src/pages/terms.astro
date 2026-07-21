@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import { termsSections } from '@/lib/legal';
+---
+
+<BaseLayout
+  title="Пользовательское соглашение | CleanPlanet"
+  description="Пользовательское соглашение сайта CleanPlanet для заявок на клининговые услуги."
+  canonical="/terms/"
+>
+  <Breadcrumbs items={[{ label: 'Пользовательское соглашение', href: '/terms/' }]} />
+  <section class="container py-12 md:py-20">
+    <article class="prose-clean max-w-4xl">
+      <h1>Пользовательское соглашение</h1>
+      {
+        termsSections.map(([title, text]) => (
+          <>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </>
+        ))
+      }
+    </article>
+  </section>
+</BaseLayout>

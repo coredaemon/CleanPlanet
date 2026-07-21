@@ -1,0 +1,24 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Спасибо за заявку | CleanPlanet"
+  description="Заявка отправлена. CleanPlanet обработает обращение и уточнит детали уборки."
+  canonical="/thank-you/"
+  noindex
+>
+  <section class="container py-20 text-center">
+    <h1 class="text-[clamp(2rem,6vw,3.5rem)] font-bold text-[var(--color-text-heading)]">
+      Спасибо, заявка отправлена
+    </h1>
+    <p class="mx-auto mt-4 max-w-2xl text-lg text-muted">
+      Мы получили обращение. После обработки заявки с вами свяжутся для уточнения деталей и
+      предварительной стоимости.
+    </p>
+    <a
+      class="mt-8 inline-flex min-h-12 items-center justify-center rounded-medium bg-primary px-5 font-semibold text-white"
+      href="/">Вернуться на главную</a
+    >
+  </section>
+</BaseLayout>

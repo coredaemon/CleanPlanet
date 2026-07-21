@@ -1,0 +1,36 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import Calculator from '@/components/calculator/Calculator.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import Hero from '@/components/sections/Hero.astro';
+import ServiceCards from '@/components/sections/ServiceCards.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { businessServices } from '@/data/services';
+---
+
+<BaseLayout
+  title="Услуги для бизнеса в Москве | CleanPlanet"
+  description="Клининг офисов, магазинов, салонов, кафе, спортивных залов и стеклянных конструкций в Москве и Московской области."
+  canonical="/services/kommercheskiy-klining/"
+>
+  <Breadcrumbs
+    items={[
+      { label: 'Услуги', href: '/services/' },
+      { label: 'Услуги для бизнеса', href: '/services/kommercheskiy-klining/' },
+    ]}
+  />
+  <Hero
+    title="Услуги для бизнеса в Москве"
+    description="Выберите направление коммерческого клининга и оставьте заявку для предварительного расчёта по площади, графику и составу работ."
+    eyebrow="Бизнес-хаб"
+  />
+  <ServiceCards
+    services={businessServices}
+    title="Коммерческий клининг"
+    lead="Отдельного текста под общий коммерческий клининг пока нет, поэтому страница работает как нейтральный хаб бизнес-услуг."
+  />
+  <section class="container py-10"><Calculator /></section>
+  <section class="container py-14 md:py-20">
+    <LeadForm title="Заявка для организации" formType="business" />
+  </section>
+</BaseLayout>

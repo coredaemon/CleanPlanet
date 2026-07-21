@@ -1,0 +1,35 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { contacts } from '@/data/contacts';
+---
+
+<BaseLayout
+  title="Контакты CleanPlanet | CleanPlanet"
+  description="Контакты сервиса CleanPlanet для заявок на уборку в Москве и Московской области."
+  canonical="/contacts/"
+>
+  <Breadcrumbs items={[{ label: 'Контакты', href: '/contacts/' }]} />
+  <section class="container grid gap-10 py-12 md:py-20 lg:grid-cols-[0.8fr_1.2fr]">
+    <div>
+      <h1
+        class="text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight text-[var(--color-text-heading)]"
+      >
+        Контакты
+      </h1>
+      <div class="mt-7 grid gap-4 text-muted">
+        <p><strong class="text-primary-dark">Телефон:</strong> {contacts.phone}</p>
+        <p><strong class="text-primary-dark">E-mail:</strong> {contacts.email}</p>
+        <p>
+          <strong class="text-primary-dark">Мессенджеры:</strong>
+          {contacts.telegram}, {contacts.whatsapp}
+        </p>
+        <p><strong class="text-primary-dark">Регион:</strong> {contacts.region}</p>
+        <p><strong class="text-primary-dark">График:</strong> {contacts.workHours}</p>
+        <p><strong class="text-primary-dark">Адрес:</strong> {contacts.legalAddress}</p>
+      </div>
+    </div>
+    <LeadForm title="Написать в CleanPlanet" />
+  </section>
+</BaseLayout>

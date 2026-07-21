@@ -1,0 +1,47 @@
+---
+import Analytics from '@/components/common/Analytics.astro';
+import CookieConsent from '@/components/common/CookieConsent.astro';
+import Footer from '@/components/common/Footer.astro';
+import Header from '@/components/common/Header.astro';
+import MobileBottomBar from '@/components/common/MobileBottomBar.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const { title, description, canonical = Astro.url.pathname, noindex = false } = Astro.props;
+const canonicalUrl = new URL(canonical, Astro.site ?? 'https://cleanplanet.example').toString();
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="icon" href="/favicon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content="/logo-mark-512.png" />
+    <slot name="head" />
+  </head>
+  <body>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <MobileBottomBar />
+    <CookieConsent />
+    <Analytics />
+  </body>
+</html>

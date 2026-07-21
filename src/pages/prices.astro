@@ -1,0 +1,42 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import Calculator from '@/components/calculator/Calculator.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { services } from '@/data/services';
+---
+
+<BaseLayout
+  title="Цены на клининговые услуги в Москве | CleanPlanet"
+  description="Предварительный расчёт стоимости уборки квартир, домов, офисов и коммерческих помещений. Подтверждённые тарифы будут добавлены после согласования."
+  canonical="/prices/"
+>
+  <Breadcrumbs items={[{ label: 'Цены', href: '/prices/' }]} />
+  <section class="container py-12 md:py-20">
+    <h1
+      class="max-w-4xl text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight text-[var(--color-text-heading)]"
+    >
+      Цены на клининговые услуги
+    </h1>
+    <p class="mt-4 max-w-3xl text-lg text-muted">
+      Подтверждённых тарифов пока нет. Стоимость по каждой услуге рассчитывается индивидуально после
+      уточнения площади, состояния объекта и состава работ.
+    </p>
+    <div class="mt-8 overflow-hidden rounded-large border border-border bg-white">
+      {
+        services.map((service) => (
+          <a
+            class="grid gap-2 border-b border-border p-4 last:border-b-0 md:grid-cols-[1fr_220px_120px] md:items-center"
+            href={`/services/${service.slug}/`}
+          >
+            <span class="font-semibold text-[var(--color-text-heading)]">{service.title}</span>
+            <span class="text-sm text-muted">рассчитывается индивидуально</span>
+            <span class="text-sm font-semibold text-primary">Подробнее</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+  <section class="container py-10"><Calculator /></section>
+  <section class="container py-14 md:py-20"><LeadForm title="Получить расчёт стоимости" /></section>
+</BaseLayout>

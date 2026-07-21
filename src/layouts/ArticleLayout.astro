@@ -1,0 +1,15 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import BaseLayout from './BaseLayout.astro';
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={`${title} | CleanPlanet`} description={description}>
+  <Breadcrumbs items={[{ label: title, href: Astro.url.pathname }]} />
+  <section class="container py-12 md:py-20">
+    <article class="prose-clean max-w-4xl">
+      <slot />
+    </article>
+  </section>
+</BaseLayout>
