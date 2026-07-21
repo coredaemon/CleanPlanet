@@ -46,7 +46,9 @@ import { featuredServices } from '@/data/services';
         <a class="hover:text-white" href={contacts.phoneHref} data-track="phone_click"
           >{contacts.phone}</a
         >
-        <a class="hover:text-white" href={`mailto:${contacts.email}`}>{contacts.email}</a>
+        <a class="hover:text-white" href={contacts.telegramHref} data-track="messenger_click"
+          >{contacts.telegram}</a
+        >
         <span>{contacts.workHours}</span>
         <span>{contacts.region}</span>
       </div>

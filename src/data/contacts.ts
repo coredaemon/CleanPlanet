@@ -3,7 +3,6 @@ export const contacts = {
   region: 'Москва и Московская область',
   phone: '+7 966 752-34-52',
   phoneHref: 'tel:+79667523452',
-  email: 'уточняется',
   telegram: 'Telegram',
   telegramHref: 'https://t.me/+79667523452',
   whatsapp: 'WhatsApp уточняется',
@@ -12,7 +11,6 @@ export const contacts = {
   legalName: 'ИП Прокопьева Екатерина Григорьевна',
   inn: '772406153012',
   ogrnip: '319774600415292',
-  legalAddress: 'уточняется',
   // Банковские реквизиты (для договоров/счетов; публично можно не выводить).
   bank: {
     name: 'АО «ТБанк»',
