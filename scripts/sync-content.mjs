@@ -6,6 +6,7 @@ const sourceDir = path.join(root, 'Тексты для сайта');
 const targetDir = path.join(root, 'src', 'content', 'pages');
 
 function slugFromFrontmatter(markdown) {
+  markdown = markdown.replace(/^\uFEFF/, '');
   const match = markdown.match(/^---\s*[\s\S]*?\nslug:\s*"?([^"\n]+)"?\s*[\s\S]*?\n---/);
   const raw = match?.[1]?.trim();
   if (raw === '/') return 'home';
@@ -64,8 +65,8 @@ function cleanMarkdown(markdown) {
 
     cleaned.push(
       line
-        .replace(/\[УТОЧНИТЬ ЦЕНУ[^\]]*\]/gi, 'по запросу')
-        .replace(/\[УТОЧНИТЬ[^\]]*\]/gi, 'уточняется')
+        .replace(/\[УТОЧНИТЬ ЦЕНУ[^\]]*\]/gi, 'Рассчитывается индивидуально')
+        .replace(/\[УТОЧНИТЬ[^\]]*\]/gi, 'Рассчитывается индивидуально')
         .replace(/\[ДОБАВИТЬ[^\]]*\]/gi, ''),
     );
   }

@@ -2,9 +2,7 @@
 import BeforeAfterSlider from './BeforeAfterSlider.astro';
 import projectsData from '@/data/projects.json';
 
-const pairs = (
-  projectsData.pairs as { id: string; before: string; after: string }[]
-).slice(0, 8);
+const pairs = (projectsData.pairs as { id: string; before: string; after: string }[]).slice(0, 8);
 const collages = (projectsData.collages as { id: string; src: string; alt: string }[]).slice(0, 6);
 ---
 
@@ -13,12 +11,14 @@ const collages = (projectsData.collages as { id: string; src: string; alt: strin
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="max-w-2xl">
         <p class="text-sm font-bold uppercase tracking-wide text-accent">До и после</p>
-        <h2 class="mt-2 text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-tight text-[var(--color-text-heading)]">
+        <h2
+          class="mt-2 text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-tight text-[var(--color-text-heading)]"
+        >
           Смотрите разницу своими глазами
         </h2>
         <p class="mt-3 text-muted">
-          Реальные объекты наших клиентов. Двигайте ползунок, чтобы увидеть, что было до уборки и что
-          стало после.
+          Реальные объекты наших клиентов. Двигайте ползунок, чтобы увидеть, что было до уборки и
+          что стало после.
         </p>
       </div>
       <div class="hidden gap-2 md:flex">
@@ -43,13 +43,7 @@ const collages = (projectsData.collages as { id: string; src: string; alt: strin
           <h3 class="mt-14 text-xl font-bold text-[var(--color-text-heading)]">Готовые коллажи</h3>
           <div class="ba-collages mt-5">
             {collages.map((c) => (
-              <img
-                class="ba-collage"
-                src={c.src}
-                alt={c.alt}
-                loading="lazy"
-                decoding="async"
-              />
+              <img class="ba-collage" src={c.src} alt={c.alt} loading="lazy" decoding="async" />
             ))}
           </div>
         </>
@@ -159,7 +153,9 @@ const collages = (projectsData.collages as { id: string; src: string; alt: strin
     const step = () => track.querySelector('.ba-slide')?.getBoundingClientRect().width || 320;
     document
       .querySelector('[data-ba-prev]')
-      ?.addEventListener('click', () => track.scrollBy({ left: -(step() + 20), behavior: 'smooth' }));
+      ?.addEventListener('click', () =>
+        track.scrollBy({ left: -(step() + 20), behavior: 'smooth' }),
+      );
     document
       .querySelector('[data-ba-next]')
       ?.addEventListener('click', () => track.scrollBy({ left: step() + 20, behavior: 'smooth' }));

@@ -5,7 +5,6 @@ export const contacts = {
   phoneHref: 'tel:+79667523452',
   whatsapp: 'WhatsApp',
   whatsappHref: 'https://wa.me/79667523452',
-  // MAX-мессенджер клиент тоже хочет показывать — нужна ссылка/ID (пока нет).
   workHours: 'Круглосуточно, без выходных',
   legalName: 'ИП Прокопьева Екатерина Григорьевна',
   inn: '772406153012',
