@@ -3,7 +3,6 @@ import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
 import Calculator from '@/components/calculator/Calculator.astro';
 import LeadForm from '@/components/forms/LeadForm.astro';
 import Hero from '@/components/sections/Hero.astro';
-import Faq from '@/components/sections/Faq.astro';
 import ServiceCards from '@/components/sections/ServiceCards.astro';
 import BaseLayout from './BaseLayout.astro';
 import { services, type Service } from '@/data/services';
@@ -61,7 +60,6 @@ const related = services
     title="Связанные услуги"
     lead="Эти направления часто рассматривают вместе."
   />
-  <Faq />
   <section id="photo-form" class="container py-14 md:py-20">
     <LeadForm title="Оценка по фотографиям" formType="photo" service={service.title} />
   </section>

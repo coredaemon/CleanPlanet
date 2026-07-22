@@ -18,6 +18,7 @@ function cleanMarkdown(markdown) {
   let skipDirectiveList = false;
   let frontmatterClosed = false;
   let firstHeadingRemoved = false;
+  let skipSection = false;
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -30,6 +31,16 @@ function cleanMarkdown(markdown) {
       firstHeadingRemoved = true;
       continue;
     }
+    // Пропускаем разделы, дублирующие компоненты макета (связанные услуги,
+    // финальная форма, примеры работ — их отдают ServiceCards/LeadForm/галерея).
+    const sectionHeading = trimmed.match(/^##\s+(.+)$/);
+    if (sectionHeading) {
+      skipSection =
+        /^(другие услуги|связанные услуги|заказать|примеры выполненных работ|примеры работ)/i.test(
+          sectionHeading[1].trim(),
+        );
+    }
+    if (skipSection) continue;
     const directive = /^\*\*(Кнопки|Кнопка|Поля формы):\*\*/i.test(trimmed);
     const editorNote =
       /^>\s*\[(УТОЧНИТЬ|ДОБАВИТЬ|ПОЛНОЕ НАИМЕНОВАНИЕ ИП|ИНН|ОГРНИП|АДРЕС|EMAIL)[^\]]*\]\s*$/i.test(

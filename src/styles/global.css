@@ -64,43 +64,116 @@ a {
 
 .prose-clean {
   color: var(--color-text);
-  font-size: 1.04rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .prose-clean > * + * {
-  margin-top: 1.05rem;
+  margin-top: 1.1rem;
 }
 
+/* H2 — визуальный разделитель секций */
 .prose-clean h2 {
-  margin-top: 3rem;
+  margin-top: 3.25rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
   color: var(--color-text-heading);
-  font-size: clamp(1.75rem, 4vw, 2.6rem);
-  line-height: 1.15;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  line-height: 1.18;
   font-weight: 700;
+}
+.prose-clean > h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .prose-clean h3 {
-  margin-top: 2rem;
+  margin-top: 1.75rem;
   color: var(--color-text-heading);
-  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
-  line-height: 1.22;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  line-height: 1.25;
   font-weight: 700;
 }
 
-.prose-clean p,
-.prose-clean li {
-  max-width: 76ch;
-}
-
-.prose-clean ul,
-.prose-clean ol {
-  padding-left: 1.25rem;
+.prose-clean p {
+  max-width: 72ch;
 }
 
 .prose-clean a {
   color: var(--color-primary);
   text-decoration: underline;
   text-underline-offset: 0.18em;
+  font-weight: 600;
+}
+
+/* Маркированные списки → чек-карточки (сетка) */
+.prose-clean ul {
+  list-style: none;
+  padding-left: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+@media (min-width: 768px) {
+  .prose-clean ul {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.prose-clean ul li {
+  position: relative;
+  max-width: none;
+  padding: 0.7rem 0.9rem 0.7rem 2.6rem;
+  background: var(--color-background-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  font-size: 0.98rem;
+}
+.prose-clean ul li::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 0.72rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: var(--radius-pill);
+  background:
+    var(--color-accent-soft)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23245D9D' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E")
+    center / 0.72rem no-repeat;
+}
+
+/* Нумерованные списки → шаги */
+.prose-clean ol {
+  list-style: none;
+  padding-left: 0;
+  counter-reset: step;
+  display: grid;
+  gap: 0.6rem;
+}
+.prose-clean ol li {
+  position: relative;
+  max-width: none;
+  counter-increment: step;
+  padding: 0.75rem 0.9rem 0.75rem 3.1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+.prose-clean ol li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0.7rem;
+  top: 0.62rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .prose-clean blockquote {
@@ -114,60 +187,46 @@ a {
 
 .prose-clean table {
   width: 100%;
-  max-width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-medium);
-  display: block;
-  overflow-x: auto;
+  overflow: hidden;
+}
+
+.prose-clean thead th {
+  background: var(--color-primary-dark);
+  color: #fff;
+  font-weight: 700;
 }
 
 .prose-clean th,
 .prose-clean td {
-  border: 1px solid var(--color-border);
-  padding: 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+  padding: 0.8rem 1rem;
   text-align: left;
+  font-size: 0.98rem;
 }
 
-.prose-clean th {
-  background: var(--color-background-blue);
-  color: var(--color-primary-dark);
+.prose-clean tbody tr:nth-child(even) {
+  background: var(--color-background-alt);
+}
+
+.prose-clean tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.prose-clean .table-scroll,
+.prose-clean table {
+  max-width: 100%;
 }
 
 @media (max-width: 640px) {
-  .prose-clean table,
-  .prose-clean thead,
-  .prose-clean tbody,
-  .prose-clean tr,
-  .prose-clean th,
-  .prose-clean td {
+  .prose-clean ul {
+    grid-template-columns: 1fr;
+  }
+  .prose-clean table {
     display: block;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .prose-clean thead {
-    display: none;
-  }
-
-  .prose-clean tr {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-medium);
-    overflow: hidden;
-  }
-
-  .prose-clean tr + tr {
-    margin-top: 0.75rem;
-  }
-
-  .prose-clean td,
-  .prose-clean th {
-    border: 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .prose-clean td:last-child,
-  .prose-clean th:last-child {
-    border-bottom: 0;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }
