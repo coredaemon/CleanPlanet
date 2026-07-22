@@ -1,0 +1,155 @@
+---
+import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
+import LeadForm from '@/components/forms/LeadForm.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import reviewsData from '@/data/reviews.json';
+
+const reviews = reviewsData as { src: string; width: number; height: number; alt: string }[];
+---
+
+<BaseLayout
+  title="Отзывы клиентов | CleanPlanet"
+  description="Реальные отзывы клиентов CleanPlanet — скриншоты переписок об уборке квартир, мытье окон и химчистке."
+  canonical="/reviews/"
+>
+  <Breadcrumbs items={[{ label: 'Отзывы', href: '/reviews/' }]} />
+  <section class="container py-12 md:py-20">
+    <h1
+      class="text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight text-[var(--color-text-heading)]"
+    >
+      Отзывы клиентов
+    </h1>
+    <p class="mt-4 max-w-3xl text-lg text-muted">
+      Реальные сообщения клиентов после уборки. Публикуются с их согласия. Имена и личные данные
+      скрыты.
+    </p>
+
+    <div class="reviews-grid mt-10">
+      {
+        reviews.map((item, i) => (
+          <button
+            class="review-card group block w-full overflow-hidden rounded-large border border-border bg-white p-0 shadow-sm transition hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus)]"
+            type="button"
+            data-review-index={i}
+            aria-label={`Открыть отзыв ${i + 1} крупнее`}
+          >
+            <img
+              class="block w-full"
+              src={item.src}
+              width={item.width}
+              height={item.height}
+              alt={item.alt}
+              loading={i < 2 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <section id="lead-form" class="container py-14 md:py-20">
+    <LeadForm title="Оставить заявку на уборку" />
+  </section>
+
+  <!-- Lightbox -->
+  <div
+    id="review-lightbox"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Просмотр отзыва"
+  >
+    <button
+      id="lightbox-close"
+      class="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark"
+      type="button"
+      aria-label="Закрыть"
+    >
+      ×
+    </button>
+    <button
+      id="lightbox-prev"
+      class="absolute left-3 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:left-8"
+      type="button"
+      aria-label="Предыдущий отзыв"
+    >
+      ‹
+    </button>
+    <img
+      id="lightbox-img"
+      class="max-h-[88vh] max-w-full rounded-large object-contain shadow-lg"
+      src=""
+      alt=""
+    />
+    <button
+      id="lightbox-next"
+      class="absolute right-3 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:right-8"
+      type="button"
+      aria-label="Следующий отзыв"
+    >
+      ›
+    </button>
+  </div>
+</BaseLayout>
+
+<style>
+  .reviews-grid {
+    columns: 1;
+    column-gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .reviews-grid {
+      columns: 2;
+    }
+  }
+  @media (min-width: 1024px) {
+    .reviews-grid {
+      columns: 3;
+    }
+  }
+  .review-card {
+    margin-bottom: 20px;
+    break-inside: avoid;
+  }
+</style>
+
+<script is:inline define:vars={{ reviews }}>
+  const lightbox = document.getElementById('review-lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  let current = 0;
+
+  const show = (i) => {
+    current = (i + reviews.length) % reviews.length;
+    const item = reviews[current];
+    lightboxImg.src = item.src;
+    lightboxImg.alt = item.alt;
+  };
+  const open = (i) => {
+    show(i);
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    document.body.style.overflow = '';
+  };
+
+  document.querySelectorAll('[data-review-index]').forEach((btn) => {
+    btn.addEventListener('click', () => open(Number(btn.dataset.reviewIndex)));
+  });
+  document.getElementById('lightbox-close').addEventListener('click', close);
+  document.getElementById('lightbox-prev').addEventListener('click', () => show(current - 1));
+  document.getElementById('lightbox-next').addEventListener('click', () => show(current + 1));
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (lightbox.classList.contains('hidden')) return;
+    if (e.key === 'Escape') close();
+    if (e.key === 'ArrowLeft') show(current - 1);
+    if (e.key === 'ArrowRight') show(current + 1);
+  });
+</script>

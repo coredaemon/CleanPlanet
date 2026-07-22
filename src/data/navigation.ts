@@ -2,6 +2,7 @@ export const mainNavigation = [
   { label: 'Услуги', href: '/services/' },
   { label: 'Цены', href: '/prices/' },
   { label: 'Работы', href: '/projects/' },
+  { label: 'Отзывы', href: '/reviews/' },
   { label: 'О сервисе', href: '/about/' },
   { label: 'Контакты', href: '/contacts/' },
 ] as const;

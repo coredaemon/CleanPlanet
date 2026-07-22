@@ -30,6 +30,10 @@ Thumbs.db
 .vscode/
 *.swp
 
+# Исходные скриншоты отзывов — содержат имена/лица (PII). В репозиторий кладём только
+# обработанные (обрезанные) версии в public/images/reviews/.
+ОТЗЫВЫ/
+
 # Generated media derivatives (исходники 01/ и 02/ коммитим; производные — генерируются скриптом)
 public/images/projects/collages/
 public/images/projects/before/
