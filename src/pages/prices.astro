@@ -3,7 +3,7 @@ import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
 import Calculator from '@/components/calculator/Calculator.astro';
 import LeadForm from '@/components/forms/LeadForm.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { services } from '@/data/services';
+import { priceList } from '@/data/prices';
 ---
 
 <BaseLayout
@@ -19,20 +19,17 @@ import { services } from '@/data/services';
       Цены на клининговые услуги
     </h1>
     <p class="mt-4 max-w-3xl text-lg text-muted">
-      Стоимость по каждой услуге рассчитывается индивидуально. Минимальная стоимость заказа — 5000
-      ₽. Итоговая цена зависит от площади, состояния объекта, состава работ и адреса.
+      Ниже — ориентировочные цены. Минимальная стоимость заказа — 5 000 ₽. Итоговая цена зависит от
+      площади, состояния объекта, состава работ и адреса; сложные и нестандартные работы
+      рассчитываются индивидуально.
     </p>
     <div class="mt-8 overflow-hidden rounded-large border border-border bg-white">
       {
-        services.map((service) => (
-          <a
-            class="grid gap-2 border-b border-border p-4 last:border-b-0 md:grid-cols-[1fr_220px_120px] md:items-center"
-            href={`/services/${service.slug}/`}
-          >
-            <span class="font-semibold text-[var(--color-text-heading)]">{service.title}</span>
-            <span class="text-sm text-muted">рассчитывается индивидуально</span>
-            <span class="text-sm font-semibold text-primary">Подробнее</span>
-          </a>
+        priceList.map((item) => (
+          <div class="grid gap-1 border-b border-border p-4 last:border-b-0 md:grid-cols-[1fr_320px] md:items-center">
+            <span class="font-semibold text-[var(--color-text-heading)]">{item.name}</span>
+            <span class="text-sm font-semibold text-primary md:text-right">{item.price}</span>
+          </div>
         ))
       }
     </div>

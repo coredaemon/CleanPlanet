@@ -1,4 +1,4 @@
-import { pricesConfirmed, tariffDraft } from '@/data/prices';
+import { pricing, pricesConfirmed } from '@/data/prices';
 
 export interface CalculatorInput {
   objectType: string;
@@ -31,6 +31,14 @@ export const defaultCalculatorInput: CalculatorInput = {
   outsideMkad: false,
 };
 
+// ₽ за м² для выбранного объекта и вида уборки; null = индивидуально
+export function ratePerSqm(objectType: string, cleaningType: string): number | null {
+  if (objectType === 'Дом или коттедж') return null;
+  if (objectType === 'Офис' || objectType === 'Коммерческое помещение')
+    return pricing.commercialRate;
+  return pricing.ratesByType[cleaningType] ?? null;
+}
+
 export function calculateCleaning(input: CalculatorInput): CalculatorResult {
   const summary = [
     `${input.objectType}, ${input.cleaningType.toLowerCase()} уборка`,
@@ -43,7 +51,8 @@ export function calculateCleaning(input: CalculatorInput): CalculatorResult {
     `Срочность: ${input.urgency}`,
   ];
 
-  if (!pricesConfirmed) {
+  const rate = ratePerSqm(input.objectType, input.cleaningType);
+  if (!pricesConfirmed || rate === null || !input.area) {
     return {
       pricesConfirmed,
       label: 'Предварительная стоимость рассчитывается индивидуально',
@@ -52,12 +61,7 @@ export function calculateCleaning(input: CalculatorInput): CalculatorResult {
     };
   }
 
-  const amountFrom =
-    input.area * tariffDraft.basePerSquareMeter +
-    input.rooms * tariffDraft.roomCoefficient +
-    input.bathrooms * tariffDraft.bathroomCoefficient +
-    (input.outsideMkad ? tariffDraft.outsideMkadCoefficient : 0);
-
+  const amountFrom = Math.max(Math.round((input.area * rate) / 100) * 100, pricing.minOrder);
   return {
     pricesConfirmed,
     label: `Предварительная стоимость от ${amountFrom.toLocaleString('ru-RU')} ₽`,

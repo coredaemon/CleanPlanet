@@ -1,5 +1,5 @@
 ---
-import { calculatorOptions } from '@/data/prices';
+import { calculatorOptions, pricing } from '@/data/prices';
 ---
 
 <section id="calculator" class="rounded-xl bg-[var(--gradient-soft)] p-5 md:p-8">
@@ -120,11 +120,27 @@ import { calculatorOptions } from '@/data/prices';
   </div>
 </section>
 
-<script is:inline>
+<script is:inline define:vars={{ pricing }}>
   const calculators = document.querySelectorAll('[data-calculator]');
+
+  const ratePerSqm = (objectType, cleaningType) => {
+    if (objectType === 'Дом или коттедж') return null;
+    if (objectType === 'Офис' || objectType === 'Коммерческое помещение')
+      return pricing.commercialRate;
+    return pricing.ratesByType[cleaningType] ?? null;
+  };
+
+  const estimate = (data) => {
+    const rate = ratePerSqm(data.get('objectType'), data.get('cleaningType'));
+    const area = Number(data.get('area')) || 0;
+    if (rate === null || !area) return null;
+    return Math.max(Math.round((area * rate) / 100) * 100, pricing.minOrder);
+  };
+
   const buildSummary = (form) => {
     const data = new FormData(form);
     const services = data.getAll('additionalServices');
+    const extras = services.length || data.get('outsideMkad');
     return [
       `${data.get('objectType')}, ${String(data.get('cleaningType')).toLowerCase()} уборка`,
       `${data.get('area')} м², комнат: ${data.get('rooms')}, санузлов: ${data.get('bathrooms')}`,
@@ -134,6 +150,9 @@ import { calculatorOptions } from '@/data/prices';
       `Состояние: ${data.get('pollutionLevel')}`,
       data.get('outsideMkad') ? 'Адрес за МКАД' : 'Москва или ближайшая зона',
       `Срочность: ${data.get('urgency')}`,
+      extras
+        ? 'Дополнительные услуги и выезд за МКАД рассчитываются отдельно'
+        : 'Минимальная стоимость заказа — 5 000 ₽',
     ];
   };
 
@@ -142,7 +161,11 @@ import { calculatorOptions } from '@/data/prices';
     const label = section.querySelector('[data-calc-label]');
     const summary = section.querySelector('[data-calc-summary]');
     const update = () => {
-      label.textContent = 'Предварительная стоимость рассчитывается индивидуально';
+      const amount = estimate(new FormData(form));
+      label.textContent =
+        amount === null
+          ? 'Предварительная стоимость рассчитывается индивидуально'
+          : `Предварительная стоимость от ${amount.toLocaleString('ru-RU')} ₽`;
       summary.innerHTML = buildSummary(form)
         .map((item) => `<li>${item}</li>`)
         .join('');
