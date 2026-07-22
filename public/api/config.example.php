@@ -6,4 +6,6 @@ return [
     'telegram_chat_id' => '',
     'rate_limit_seconds' => 30,
     'max_upload_size' => 8 * 1024 * 1024,
+    'max_upload_files' => 5,
+    'max_total_upload_size' => 12 * 1024 * 1024,
 ];

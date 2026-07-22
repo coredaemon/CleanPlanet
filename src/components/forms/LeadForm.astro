@@ -1,21 +1,20 @@
 ---
 interface Props {
   title?: string;
-  formType?: 'lead' | 'quick' | 'callback' | 'urgent' | 'business' | 'photo';
+  formType?: 'lead' | 'quick' | 'callback' | 'urgent' | 'business';
   service?: string;
 }
 
 const { title = 'Оставьте заявку', formType = 'lead', service = '' } = Astro.props as Props;
 const isBusiness = formType === 'business';
-const isPhoto = formType === 'photo';
 ---
 
 <form
-  id={formType === 'lead' ? 'lead-form' : undefined}
+  id="lead-form"
   class="lead-form grid gap-4 rounded-xl border border-border bg-white p-5 shadow-sm md:p-7"
-  action={isPhoto ? '/api/upload-images.php' : '/api/send-lead.php'}
+  action="/api/send-lead.php"
   method="post"
-  enctype={isPhoto ? 'multipart/form-data' : undefined}
+  enctype="multipart/form-data"
   data-form-type={formType}
   novalidate
 >
@@ -91,21 +90,20 @@ const isPhoto = formType === 'photo';
     </label>
   </div>
 
-  {
-    isPhoto && (
-      <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-        Фотографии объекта
-        <input
-          class="form-input min-h-14 pt-3"
-          name="photos[]"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-        />
-        <span class="text-xs font-normal text-muted">JPG, PNG или WebP, до 8 МБ каждый.</span>
-      </label>
-    )
-  }
+  <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+    Фотографии объекта
+    <input
+      class="form-input min-h-14 pt-3"
+      name="photos[]"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      multiple
+      data-photo-input
+    />
+    <span class="text-xs font-normal text-muted">
+      Фото по желанию — сжимаются автоматически. До 5 изображений, JPG, PNG или WebP.
+    </span>
+  </label>
 
   <label class="grid gap-2 text-sm font-semibold text-primary-dark">
     Комментарий
@@ -145,6 +143,85 @@ const isPhoto = formType === 'photo';
 </form>
 
 <script is:inline>
+  const PHOTO_LIMIT = 5;
+  const PHOTO_MAX_SIDE = 1600;
+  const PHOTO_QUALITY = 0.8;
+  const PHOTO_MAX_TOTAL = 12 * 1024 * 1024;
+
+  const fileToImage = (file) =>
+    new Promise((resolve, reject) => {
+      if ('createImageBitmap' in window) {
+        createImageBitmap(file).then(resolve).catch(reject);
+        return;
+      }
+
+      const image = new Image();
+      const url = URL.createObjectURL(file);
+      image.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve(image);
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Image load failed'));
+      };
+      image.src = url;
+    });
+
+  const canvasToBlob = (canvas) =>
+    new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', PHOTO_QUALITY));
+
+  const compressPhoto = async (file) => {
+    if (!file.type.startsWith('image/') || typeof HTMLCanvasElement === 'undefined') return file;
+
+    try {
+      const image = await fileToImage(file);
+      const ratio = Math.min(1, PHOTO_MAX_SIDE / Math.max(image.width, image.height));
+      if (ratio === 1 && file.size <= 2 * 1024 * 1024) return file;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * ratio));
+      canvas.height = Math.max(1, Math.round(image.height * ratio));
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) return file;
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+      const blob = await canvasToBlob(canvas);
+      if (!blob) return file;
+      const safeName = file.name.replace(/\.[^.]+$/, '') || 'photo';
+      return new File([blob], `${safeName}.jpg`, { type: 'image/jpeg' });
+    } catch {
+      return file;
+    }
+  };
+
+  const buildFormData = async (form, status) => {
+    const formData = new FormData(form);
+    const input = form.querySelector('[data-photo-input]');
+    const files = Array.from(input?.files || []);
+    formData.delete('photos[]');
+
+    if (!files.length) return formData;
+    if (files.length > PHOTO_LIMIT) {
+      throw new Error(`Можно приложить не больше ${PHOTO_LIMIT} фотографий.`);
+    }
+
+    status.textContent = 'Сжимаем фотографии перед отправкой.';
+    let totalSize = 0;
+    for (const file of files) {
+      const prepared = await compressPhoto(file);
+      totalSize += prepared.size;
+      if (totalSize > PHOTO_MAX_TOTAL) {
+        throw new Error(
+          'Фотографии после сжатия всё ещё слишком большие. Оставьте до 5 самых важных кадров.',
+        );
+      }
+      formData.append('photos[]', prepared, prepared.name);
+    }
+
+    return formData;
+  };
+
   document.querySelectorAll('.lead-form').forEach((form) => {
     const status = form.querySelector('.form-status');
     const utmInput = form.querySelector('[data-utm-field]');
@@ -168,18 +245,22 @@ const isPhoto = formType === 'photo';
       status.classList.remove('hidden');
 
       try {
+        const formData = await buildFormData(form, status);
         const response = await fetch(form.action, {
           method: 'POST',
-          body: new FormData(form),
+          body: formData,
         });
         if (!response.ok) throw new Error('Request failed');
-        window.cleanPlanetTrack?.(
-          form.dataset.formType === 'photo' ? 'photo_send' : 'lead_success',
-        );
+        if (form.querySelector('[data-photo-input]')?.files?.length) {
+          window.cleanPlanetTrack?.('photo_send');
+        }
+        window.cleanPlanetTrack?.('lead_success');
         window.location.href = '/thank-you/';
-      } catch {
+      } catch (error) {
         status.textContent =
-          'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
+          error?.message?.startsWith('Можно приложить') || error?.message?.startsWith('Фотографии')
+            ? error.message
+            : 'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
         button.disabled = false;
         button.textContent = 'Отправить заявку';
         window.cleanPlanetTrack?.('form_error');

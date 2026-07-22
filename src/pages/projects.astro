@@ -5,64 +5,345 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import projectsData from '@/data/projects.json';
 
 const projects = projectsData as {
-  collages: { id: string; src: string; alt: string }[];
-  pairs: { id: string; before: string; after: string; beforeAlt: string; afterAlt: string }[];
+  collages: { id: string; src: string; thumb: string; alt: string }[];
+  pairs: {
+    id: string;
+    before: string;
+    after: string;
+    thumb: string;
+    beforeAlt: string;
+    afterAlt: string;
+  }[];
 };
+
+const galleryItems = [
+  ...projects.pairs.map((item) => ({ type: 'pair' as const, ...item })),
+  ...projects.collages.map((item) => ({ type: 'collage' as const, ...item })),
+];
 ---
 
 <BaseLayout
-  title="Примеры работ до и после | CleanPlanet"
+  title="Наши работы до и после | CleanPlanet"
   description="Галерея фотографий до и после уборки из предоставленных исходников CleanPlanet."
   canonical="/projects/"
 >
-  <Breadcrumbs items={[{ label: 'Примеры работ', href: '/projects/' }]} />
+  <Breadcrumbs items={[{ label: 'Наши работы', href: '/projects/' }]} />
   <section class="container py-12 md:py-20">
     <h1
       class="text-[clamp(2rem,6vw,3.5rem)] font-bold leading-tight text-[var(--color-text-heading)]"
     >
-      Примеры работ
+      Наши работы
     </h1>
     <p class="mt-4 max-w-3xl text-lg text-muted">
       Реальные результаты уборки — до и после. Фотографии помогают оценить формат работ и
       аккуратность результата.
     </p>
-    <h2 class="mt-12 text-3xl font-bold text-[var(--color-text-heading)]">Готовые коллажи</h2>
-    <div class="mt-6 grid gap-5 md:grid-cols-2">
+
+    <div class="gallery-grid mt-8">
       {
-        projects.collages.map((item) => (
-          <img
-            class="rounded-large border border-border object-cover shadow-sm"
-            src={item.src}
-            alt={item.alt}
-            loading="lazy"
-          />
-        ))
-      }
-    </div>
-    <h2 class="mt-14 text-3xl font-bold text-[var(--color-text-heading)]">Пары до и после</h2>
-    <div class="mt-6 grid gap-6">
-      {
-        projects.pairs.map((item) => (
-          <figure class="grid gap-3 rounded-large border border-border bg-white p-3 shadow-sm md:grid-cols-2">
+        galleryItems.map((item, index) => (
+          <button
+            class="gallery-tile"
+            type="button"
+            data-project-index={index}
+            aria-label={`Открыть работу ${index + 1} крупнее`}
+          >
             <img
-              class="aspect-[4/3] w-full rounded-medium object-cover"
-              src={item.before}
-              alt={item.beforeAlt}
+              src={item.thumb}
+              alt={item.type === 'pair' ? item.afterAlt : item.alt}
               loading="lazy"
+              decoding="async"
             />
-            <img
-              class="aspect-[4/3] w-full rounded-medium object-cover"
-              src={item.after}
-              alt={item.afterAlt}
-              loading="lazy"
-            />
-            <figcaption class="text-sm text-muted md:col-span-2">До и после уборки</figcaption>
-          </figure>
+            <span>{item.type === 'pair' ? 'До и после' : 'Результат'}</span>
+          </button>
         ))
       }
     </div>
   </section>
-  <section id="photo-form" class="container py-14 md:py-20">
-    <LeadForm title="Отправить фотографии для оценки" formType="photo" />
+
+  <section id="lead-form" class="container py-14 md:py-20">
+    <LeadForm title="Получить оценку по объекту" />
   </section>
+
+  <div
+    id="projects-lightbox"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/82 p-3 md:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Просмотр работы"
+  >
+    <button
+      id="projects-close"
+      class="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark"
+      type="button"
+      aria-label="Закрыть">×</button
+    >
+    <button
+      id="projects-prev"
+      class="absolute left-3 z-10 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:left-8"
+      type="button"
+      aria-label="Предыдущая работа">‹</button
+    >
+    <div class="lightbox-stage">
+      <p id="projects-counter" class="lightbox-counter"></p>
+      <div id="projects-media"></div>
+    </div>
+    <button
+      id="projects-next"
+      class="absolute right-3 z-10 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:right-8"
+      type="button"
+      aria-label="Следующая работа">›</button
+    >
+  </div>
 </BaseLayout>
+
+<style>
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media (min-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .gallery-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .gallery-tile {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: var(--radius-large);
+    border: 1px solid var(--color-border);
+    background: var(--color-accent-soft);
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition:
+      transform 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+
+  .gallery-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .gallery-tile:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .gallery-tile img {
+    display: block;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .gallery-tile span {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    border-radius: var(--radius-pill);
+    background: rgba(11, 62, 117, 0.78);
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .lightbox-stage {
+    position: relative;
+    width: min(100%, 1180px);
+    max-height: 88vh;
+  }
+
+  .lightbox-counter {
+    margin-bottom: 10px;
+    text-align: center;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  #projects-media img {
+    display: block;
+    max-height: 85vh;
+    width: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-large);
+  }
+
+  .project-ba {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    max-height: 85vh;
+    overflow: hidden;
+    border-radius: var(--radius-large);
+    background: var(--color-accent-soft);
+  }
+
+  .project-ba img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .project-ba-before {
+    clip-path: inset(0 50% 0 0);
+  }
+
+  .project-ba-tag {
+    position: absolute;
+    top: 12px;
+    z-index: 2;
+    border-radius: var(--radius-pill);
+    padding: 5px 12px;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .project-ba-tag:first-of-type {
+    left: 12px;
+    background: rgba(31, 40, 82, 0.72);
+  }
+
+  .project-ba-tag:last-of-type {
+    right: 12px;
+    background: var(--color-primary);
+  }
+
+  .project-ba-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    z-index: 2;
+    width: 3px;
+    background: #fff;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .project-ba-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    height: 44px;
+    width: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    background: #fff;
+    color: var(--color-primary);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    box-shadow: var(--shadow-md);
+    transform: translate(-50%, -50%);
+  }
+
+  .project-ba-range {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: ew-resize;
+    opacity: 0;
+  }
+</style>
+
+<script is:inline define:vars={{ galleryItems }}>
+  const lightbox = document.getElementById('projects-lightbox');
+  const media = document.getElementById('projects-media');
+  const counter = document.getElementById('projects-counter');
+  let current = 0;
+
+  const setSlider = (root, value) => {
+    const before = root.querySelector('.project-ba-before');
+    const line = root.querySelector('.project-ba-line');
+    before.style.clipPath = `inset(0 ${100 - value}% 0 0)`;
+    line.style.left = value + '%';
+  };
+
+  const render = (index) => {
+    current = (index + galleryItems.length) % galleryItems.length;
+    const item = galleryItems[current];
+    counter.textContent = `${current + 1} из ${galleryItems.length}`;
+    media.innerHTML = '';
+
+    if (item.type === 'collage') {
+      const image = document.createElement('img');
+      image.src = item.src;
+      image.alt = item.alt;
+      image.decoding = 'async';
+      media.append(image);
+      return;
+    }
+
+    const slider = document.createElement('div');
+    slider.className = 'project-ba';
+    slider.innerHTML = `
+      <img src="${item.after}" alt="${item.afterAlt}" draggable="false">
+      <img class="project-ba-before" src="${item.before}" alt="${item.beforeAlt}" draggable="false">
+      <span class="project-ba-tag">До</span>
+      <span class="project-ba-tag">После</span>
+      <div class="project-ba-line"><span class="project-ba-handle" aria-hidden="true">‹ ›</span></div>
+      <input class="project-ba-range" type="range" min="0" max="100" value="50" aria-label="Двигайте, чтобы сравнить до и после">
+    `;
+    const range = slider.querySelector('.project-ba-range');
+    range.addEventListener('input', () => setSlider(slider, Number(range.value)));
+    media.append(slider);
+    setSlider(slider, 50);
+  };
+
+  const open = (index) => {
+    render(index);
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const close = () => {
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+    document.body.style.overflow = '';
+    media.innerHTML = '';
+  };
+
+  document.querySelectorAll('[data-project-index]').forEach((button) => {
+    button.addEventListener('click', () => open(Number(button.dataset.projectIndex)));
+  });
+  document.getElementById('projects-close')?.addEventListener('click', close);
+  document.getElementById('projects-prev')?.addEventListener('click', () => render(current - 1));
+  document.getElementById('projects-next')?.addEventListener('click', () => render(current + 1));
+
+  lightbox.addEventListener('click', (event) => {
+    if (event.target === lightbox) close();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (lightbox.classList.contains('hidden')) return;
+    if (event.key === 'Escape') close();
+    if (event.key === 'ArrowLeft') render(current - 1);
+    if (event.key === 'ArrowRight') render(current + 1);
+  });
+</script>

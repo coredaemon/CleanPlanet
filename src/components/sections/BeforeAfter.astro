@@ -40,7 +40,7 @@ const collages = (projectsData.collages as { id: string; src: string; alt: strin
     {
       collages.length > 0 && (
         <>
-          <h3 class="mt-14 text-xl font-bold text-[var(--color-text-heading)]">Готовые коллажи</h3>
+          <h3 class="mt-14 text-xl font-bold text-[var(--color-text-heading)]">Ещё примеры</h3>
           <div class="ba-collages mt-5">
             {collages.map((c) => (
               <img class="ba-collage" src={c.src} alt={c.alt} loading="lazy" decoding="async" />
