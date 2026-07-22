@@ -3,6 +3,8 @@ import { getCollection } from 'astro:content';
 import Calculator from '@/components/calculator/Calculator.astro';
 import LeadForm from '@/components/forms/LeadForm.astro';
 import Hero from '@/components/sections/Hero.astro';
+import TrustBadges from '@/components/sections/TrustBadges.astro';
+import Advantages from '@/components/sections/Advantages.astro';
 import InfoSections from '@/components/sections/InfoSections.astro';
 import Faq from '@/components/sections/Faq.astro';
 import BeforeAfter from '@/components/sections/BeforeAfter.astro';
@@ -21,6 +23,7 @@ if (!page) throw new Error('Home content not found');
   canonical="/"
 >
   <Hero title="Уборка квартир, домов и помещений в Москве" description={page.data.description} />
+  <TrustBadges />
   <ServiceCards
     services={featuredServices}
     title="Быстрый выбор услуги"
@@ -71,6 +74,7 @@ if (!page) throw new Error('Home content not found');
   </section>
   <InfoSections />
   <BeforeAfter />
+  <Advantages />
   <Faq />
   <section id="photo-form" class="container py-14 md:py-20">
     <LeadForm title="Оценка стоимости по фотографиям" formType="photo" />
