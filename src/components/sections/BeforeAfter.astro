@@ -1,0 +1,167 @@
+---
+import BeforeAfterSlider from './BeforeAfterSlider.astro';
+import projectsData from '@/data/projects.json';
+
+const pairs = (
+  projectsData.pairs as { id: string; before: string; after: string }[]
+).slice(0, 8);
+const collages = (projectsData.collages as { id: string; src: string; alt: string }[]).slice(0, 6);
+---
+
+<section class="bg-[var(--color-background-alt)] py-14 md:py-20">
+  <div class="container">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div class="max-w-2xl">
+        <p class="text-sm font-bold uppercase tracking-wide text-accent">До и после</p>
+        <h2 class="mt-2 text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-tight text-[var(--color-text-heading)]">
+          Смотрите разницу своими глазами
+        </h2>
+        <p class="mt-3 text-muted">
+          Реальные объекты наших клиентов. Двигайте ползунок, чтобы увидеть, что было до уборки и что
+          стало после.
+        </p>
+      </div>
+      <div class="hidden gap-2 md:flex">
+        <button class="ba-nav" type="button" data-ba-prev aria-label="Назад">‹</button>
+        <button class="ba-nav" type="button" data-ba-next aria-label="Вперёд">›</button>
+      </div>
+    </div>
+
+    <div class="ba-track mt-8" data-ba-track>
+      {
+        pairs.map((p) => (
+          <div class="ba-slide">
+            <BeforeAfterSlider before={p.before} after={p.after} />
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      collages.length > 0 && (
+        <>
+          <h3 class="mt-14 text-xl font-bold text-[var(--color-text-heading)]">Готовые коллажи</h3>
+          <div class="ba-collages mt-5">
+            {collages.map((c) => (
+              <img
+                class="ba-collage"
+                src={c.src}
+                alt={c.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            ))}
+          </div>
+        </>
+      )
+    }
+
+    <div class="mt-10">
+      <a
+        class="inline-flex min-h-12 items-center rounded-medium bg-primary px-6 font-semibold text-white transition hover:bg-primary-hover"
+        href="/projects/"
+      >
+        Смотреть все работы
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ba-nav {
+    display: flex;
+    height: 44px;
+    width: 44px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border);
+    background: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    transition: background 0.15s;
+  }
+  .ba-nav:hover {
+    background: var(--color-surface-hover);
+  }
+  .ba-track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 8px;
+    -ms-overflow-style: none;
+    scrollbar-width: thin;
+  }
+  .ba-slide {
+    scroll-snap-align: start;
+  }
+  @media (min-width: 640px) {
+    .ba-track {
+      grid-auto-columns: 46%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ba-track {
+      grid-auto-columns: 31.5%;
+    }
+  }
+  .ba-collages {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 78%;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding-bottom: 8px;
+  }
+  @media (min-width: 640px) {
+    .ba-collages {
+      grid-auto-columns: 44%;
+    }
+  }
+  @media (min-width: 1024px) {
+    .ba-collages {
+      grid-auto-columns: 32%;
+    }
+  }
+  .ba-collage {
+    width: 100%;
+    border-radius: var(--radius-large);
+    border: 1px solid var(--color-border);
+    scroll-snap-align: start;
+  }
+</style>
+
+<script is:inline>
+  // Инициализация всех слайдеров до/после на странице
+  document.querySelectorAll('.ba').forEach((el) => {
+    const range = el.querySelector('.ba-range');
+    const before = el.querySelector('.ba-before');
+    const line = el.querySelector('.ba-line');
+    if (!range || !before || !line) return;
+    const set = (v) => {
+      before.style.clipPath = `inset(0 ${100 - v}% 0 0)`;
+      line.style.left = v + '%';
+    };
+    range.addEventListener('input', () => set(range.value));
+    set(range.value);
+  });
+
+  // Стрелки карусели
+  const track = document.querySelector('[data-ba-track]');
+  if (track) {
+    const step = () => track.querySelector('.ba-slide')?.getBoundingClientRect().width || 320;
+    document
+      .querySelector('[data-ba-prev]')
+      ?.addEventListener('click', () => track.scrollBy({ left: -(step() + 20), behavior: 'smooth' }));
+    document
+      .querySelector('[data-ba-next]')
+      ?.addEventListener('click', () => track.scrollBy({ left: step() + 20, behavior: 'smooth' }));
+  }
+</script>

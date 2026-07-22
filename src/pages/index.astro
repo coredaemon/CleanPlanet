@@ -5,7 +5,7 @@ import LeadForm from '@/components/forms/LeadForm.astro';
 import Hero from '@/components/sections/Hero.astro';
 import InfoSections from '@/components/sections/InfoSections.astro';
 import Faq from '@/components/sections/Faq.astro';
-import ProjectsPreview from '@/components/sections/ProjectsPreview.astro';
+import BeforeAfter from '@/components/sections/BeforeAfter.astro';
 import ServiceCards from '@/components/sections/ServiceCards.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { businessServices, featuredServices, homeServices } from '@/data/services';
@@ -13,7 +13,6 @@ import { businessServices, featuredServices, homeServices } from '@/data/service
 const pages = await getCollection('pages');
 const page = pages.find((entry) => entry.data.pageType === 'home');
 if (!page) throw new Error('Home content not found');
-const { Content } = await page.render();
 ---
 
 <BaseLayout
@@ -22,11 +21,6 @@ const { Content } = await page.render();
   canonical="/"
 >
   <Hero title="Уборка квартир, домов и помещений в Москве" description={page.data.description} />
-  <section class="container py-12">
-    <div class="prose-clean max-w-4xl">
-      <Content />
-    </div>
-  </section>
   <ServiceCards
     services={featuredServices}
     title="Быстрый выбор услуги"
@@ -76,7 +70,7 @@ const { Content } = await page.render();
     </div>
   </section>
   <InfoSections />
-  <ProjectsPreview />
+  <BeforeAfter />
   <Faq />
   <section id="photo-form" class="container py-14 md:py-20">
     <LeadForm title="Оценка стоимости по фотографиям" formType="photo" />
