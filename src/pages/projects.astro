@@ -181,7 +181,15 @@ const galleryItems = [
     font-size: 0.9rem;
     font-weight: 700;
   }
+</style>
 
+<style is:global>
+  /*
+    Разметка внутри #projects-media (изображение коллажа и .project-ba слайдер)
+    создаётся в рантайме через document.createElement/innerHTML — Astro не может
+    проставить на неё scoped data-astro-cid атрибут, поэтому эти правила должны
+    оставаться глобальными, иначе они молча не применяются к динамическому DOM.
+  */
   #projects-media img {
     display: block;
     width: auto;
