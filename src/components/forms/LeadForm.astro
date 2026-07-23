@@ -1,21 +1,24 @@
 ---
+import { services } from '@/data/services';
+
 interface Props {
   title?: string;
-  formType?: 'lead' | 'quick' | 'callback' | 'urgent' | 'business';
   service?: string;
+  compact?: boolean;
 }
 
-const { title = 'Оставьте заявку', formType = 'lead', service = '' } = Astro.props as Props;
-const isBusiness = formType === 'business';
+const { title = 'Оставьте заявку', service = '', compact = false } = Astro.props as Props;
 ---
 
 <form
-  id="lead-form"
-  class="lead-form grid gap-4 rounded-xl border border-border bg-white p-5 shadow-sm md:p-7"
+  class:list={[
+    'lead-form grid gap-4 rounded-xl border border-border bg-white p-5 shadow-sm',
+    compact ? 'md:p-5' : 'md:p-7',
+  ]}
   action="/api/send-lead.php"
   method="post"
   enctype="multipart/form-data"
-  data-form-type={formType}
+  data-form-type="lead"
   novalidate
 >
   <div>
@@ -25,7 +28,7 @@ const isBusiness = formType === 'business';
     </p>
   </div>
 
-  <input type="hidden" name="formType" value={formType} />
+  <input type="hidden" name="formType" value="lead" />
   <input type="hidden" name="pageTitle" value={Astro.url.pathname} />
   <input type="hidden" name="service" value={service} />
   <input type="hidden" name="utm" value="" data-utm-field />
@@ -36,11 +39,12 @@ const isBusiness = formType === 'business';
 
   <div class="grid gap-4 md:grid-cols-2">
     <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-      Имя
+      Имя *
       <input
         class="form-input"
         name="name"
         autocomplete="name"
+        required
         placeholder="Как к вам обращаться"
       />
     </label>
@@ -52,46 +56,71 @@ const isBusiness = formType === 'business';
         autocomplete="tel"
         inputmode="tel"
         required
-        placeholder="+7 ___ ___-__-__"
+        maxlength="18"
+        placeholder="+7 (___) ___-__-__"
+        data-phone-mask
       />
     </label>
   </div>
 
-  {
-    isBusiness && (
-      <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-        Организация
-        <input
-          class="form-input"
-          name="company"
-          autocomplete="organization"
-          placeholder="Название или формат объекта"
-        />
-      </label>
-    )
-  }
+  <label class="grid gap-2 text-sm font-semibold text-primary-dark">
+    Услуга
+    <select class="form-input" name="selectedService" data-service-select>
+      <option value="">Выберите услугу</option>
+      {
+        services.map((item) => (
+          <option
+            value={item.shortTitle}
+            selected={service === item.title || service === item.shortTitle}
+          >
+            {item.shortTitle}
+          </option>
+        ))
+      }
+      <option value="Другое">Другое</option>
+    </select>
+  </label>
 
-  <div class="grid gap-4 md:grid-cols-2">
-    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-      Услуга
-      <select class="form-input" name="selectedService">
-        <option value="">Выберите услугу</option>
-        <option>Уборка квартиры</option>
-        <option>Генеральная уборка</option>
-        <option>Уборка после ремонта</option>
-        <option>Уборка дома</option>
-        <option>Уборка офиса</option>
-        <option>Коммерческий клининг</option>
-      </select>
-    </label>
-    <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-      Площадь или адрес
-      <input class="form-input" name="objectDetails" placeholder="Например: 56 м², Москва" />
-    </label>
-  </div>
+  <fieldset class="grid gap-3">
+    <legend class="text-sm font-semibold text-primary-dark">Где убираться</legend>
+    <div class="grid gap-2 sm:grid-cols-2">
+      <label class="calc-option">
+        <input type="radio" name="location" value="Москва" checked data-location-radio />
+        <span>Москва</span>
+      </label>
+      <label class="calc-option">
+        <input type="radio" name="location" value="За МКАД" data-location-radio />
+        <span>За МКАД</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <label class="hidden gap-2 text-sm font-semibold text-primary-dark" data-mkad-field>
+    Примерное расстояние от МКАД, км
+    <input
+      class="form-input"
+      name="mkadDistance"
+      type="number"
+      min="0"
+      max="300"
+      inputmode="numeric"
+    />
+  </label>
+
+  <label
+    class="flex items-center gap-3 rounded-medium border border-border bg-white p-4 text-sm font-semibold text-primary-dark"
+  >
+    <input
+      class="h-5 w-5 rounded border-border text-primary"
+      name="urgent"
+      type="checkbox"
+      value="Да"
+    />
+    Нужна срочная уборка
+  </label>
 
   <label class="grid gap-2 text-sm font-semibold text-primary-dark">
-    Фотографии объекта
+    Фотографии (по желанию, до 5 изображений)
     <input
       class="form-input min-h-14 pt-3"
       name="photos[]"
@@ -100,9 +129,6 @@ const isBusiness = formType === 'business';
       multiple
       data-photo-input
     />
-    <span class="text-xs font-normal text-muted">
-      Фото по желанию — сжимаются автоматически. До 5 изображений, JPG, PNG или WebP.
-    </span>
   </label>
 
   <label class="grid gap-2 text-sm font-semibold text-primary-dark">
@@ -223,13 +249,52 @@ const isBusiness = formType === 'business';
   };
 
   document.querySelectorAll('.lead-form').forEach((form) => {
+    if (form.dataset.leadReady === 'true') return;
+    form.dataset.leadReady = 'true';
     const status = form.querySelector('.form-status');
     const utmInput = form.querySelector('[data-utm-field]');
+    const phoneInput = form.querySelector('[data-phone-mask]');
+    const mkadField = form.querySelector('[data-mkad-field]');
+    const locationInputs = form.querySelectorAll('[data-location-radio]');
     if (utmInput) utmInput.value = sessionStorage.getItem('cleanplanet_utm') || '';
+
+    const getPhoneDigits = () => {
+      const digits = (phoneInput?.value || '').replace(/\D/g, '');
+      return digits.startsWith('7') || digits.startsWith('8')
+        ? digits.slice(1, 11)
+        : digits.slice(0, 10);
+    };
+
+    const formatPhone = () => {
+      if (!phoneInput) return;
+      const digits = getPhoneDigits();
+      let value = '+7';
+      if (digits.length) value += ` (${digits.slice(0, 3)}`;
+      if (digits.length >= 3) value += ')';
+      if (digits.length > 3) value += ` ${digits.slice(3, 6)}`;
+      if (digits.length > 6) value += `-${digits.slice(6, 8)}`;
+      if (digits.length > 8) value += `-${digits.slice(8, 10)}`;
+      phoneInput.value = value;
+    };
+
+    const updateLocation = () => {
+      const outside = form.querySelector('input[name="location"]:checked')?.value === 'За МКАД';
+      mkadField?.classList.toggle('hidden', !outside);
+      mkadField?.classList.toggle('grid', outside);
+    };
+
+    phoneInput?.addEventListener('input', formatPhone);
+    locationInputs.forEach((input) => input.addEventListener('change', updateLocation));
+    updateLocation();
 
     form.addEventListener('input', () => window.cleanPlanetTrack?.('form_start'), { once: true });
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (phoneInput && getPhoneDigits().length !== 10) {
+        phoneInput.setCustomValidity('Введите 10 цифр номера после +7.');
+      } else {
+        phoneInput?.setCustomValidity('');
+      }
       if (!form.checkValidity()) {
         form.reportValidity();
         status.textContent = 'Проверьте обязательные поля и согласие на обработку данных.';
@@ -286,5 +351,25 @@ const isBusiness = formType === 'business';
     border-color: var(--color-focus);
     box-shadow: 0 0 0 3px rgba(38, 185, 221, 0.18);
     outline: none;
+  }
+
+  .calc-option {
+    display: flex;
+    min-height: 52px;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    background: white;
+    padding: 0.85rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 650;
+    color: var(--color-primary-dark);
+  }
+
+  .calc-option:has(input:checked) {
+    border-color: var(--color-primary);
+    background: var(--color-accent-soft);
   }
 </style>

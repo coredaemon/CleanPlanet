@@ -5,7 +5,7 @@ import { contacts } from '@/data/contacts';
 import { mainNavigation } from '@/data/navigation';
 ---
 
-<header class="sticky top-0 z-40 border-b border-border bg-white/92 backdrop-blur">
+<header class="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur">
   <div class="container flex min-h-20 items-center justify-between gap-5">
     <Logo />
     <nav
@@ -28,7 +28,7 @@ import { mainNavigation } from '@/data/navigation';
       >
         {contacts.phone}
       </a>
-      <Button href="/#calculator" dataEvent="calculator_start">Рассчитать</Button>
+      <Button openLead dataEvent="calculator_start">Рассчитать</Button>
     </div>
     <details class="relative md:hidden">
       <summary
@@ -51,7 +51,7 @@ import { mainNavigation } from '@/data/navigation';
             ))
           }
         </nav>
-        <Button class="mt-3 w-full" href="/#calculator">Рассчитать стоимость</Button>
+        <Button class="mt-3 w-full" openLead>Рассчитать стоимость</Button>
       </div>
     </details>
   </div>

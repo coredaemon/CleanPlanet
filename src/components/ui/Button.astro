@@ -5,6 +5,8 @@ interface Props {
   type?: 'button' | 'submit';
   class?: string;
   dataEvent?: string;
+  openLead?: boolean;
+  service?: string;
 }
 
 const {
@@ -13,6 +15,8 @@ const {
   type = 'button',
   class: className = '',
   dataEvent,
+  openLead = false,
+  service,
 } = Astro.props;
 const classes = [
   'inline-flex min-h-12 items-center justify-center gap-2 rounded-medium px-5 py-3 text-center text-sm font-semibold transition focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60',
@@ -29,7 +33,17 @@ const classes = [
 ---
 
 {
-  href ? (
+  openLead ? (
+    <button
+      class={classes}
+      type="button"
+      data-track={dataEvent}
+      data-open-lead
+      data-service={service}
+    >
+      <slot />
+    </button>
+  ) : href ? (
     <a class={classes} href={href} data-track={dataEvent}>
       <slot />
     </a>

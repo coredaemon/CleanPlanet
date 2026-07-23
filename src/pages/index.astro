@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import Calculator from '@/components/calculator/Calculator.astro';
-import LeadForm from '@/components/forms/LeadForm.astro';
 import Hero from '@/components/sections/Hero.astro';
 import TrustBadges from '@/components/sections/TrustBadges.astro';
 import Advantages from '@/components/sections/Advantages.astro';
@@ -61,7 +60,7 @@ if (!page) throw new Error('Home content not found');
           {
             businessServices.slice(0, 6).map((s) => (
               <a
-                class="rounded-pill bg-white/12 px-4 py-2 text-sm font-semibold text-white"
+                class="rounded-pill bg-white/10 px-4 py-2 text-sm font-semibold text-white"
                 href={`/services/${s.slug}/`}
               >
                 {s.shortTitle}
@@ -76,7 +75,4 @@ if (!page) throw new Error('Home content not found');
   <BeforeAfter />
   <Advantages />
   <Faq />
-  <section class="container pb-20">
-    <LeadForm title="Получить предварительный расчёт" />
-  </section>
 </BaseLayout>

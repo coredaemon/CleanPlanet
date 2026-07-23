@@ -18,7 +18,7 @@ import { featuredServices } from '@/data/services';
     </div>
     <div>
       <h2 class="text-base font-semibold">Разделы</h2>
-      <nav class="mt-4 grid gap-2 text-sm text-white/78">
+      <nav class="mt-4 grid gap-2 text-sm text-white/80">
         {
           mainNavigation.map((item) => (
             <a class="hover:text-white" href={item.href}>
@@ -30,7 +30,7 @@ import { featuredServices } from '@/data/services';
     </div>
     <div>
       <h2 class="text-base font-semibold">Популярные услуги</h2>
-      <nav class="mt-4 grid gap-2 text-sm text-white/78">
+      <nav class="mt-4 grid gap-2 text-sm text-white/80">
         {
           featuredServices.slice(0, 6).map((service) => (
             <a class="hover:text-white" href={`/services/${service.slug}/`}>
@@ -42,7 +42,7 @@ import { featuredServices } from '@/data/services';
     </div>
     <div>
       <h2 class="text-base font-semibold">Контакты</h2>
-      <div class="mt-4 grid gap-2 text-sm text-white/78">
+      <div class="mt-4 grid gap-2 text-sm text-white/80">
         <a class="hover:text-white" href={contacts.phoneHref} data-track="phone_click"
           >{contacts.phone}</a
         >
@@ -54,9 +54,9 @@ import { featuredServices } from '@/data/services';
       </div>
     </div>
   </div>
-  <div class="border-t border-white/12">
+  <div class="border-t border-white/10">
     <div
-      class="container flex flex-col gap-3 py-5 text-xs text-white/65 md:flex-row md:items-center md:justify-between"
+      class="container flex flex-col gap-3 py-5 text-xs text-white/70 md:flex-row md:items-center md:justify-between"
     >
       <p>
         © {new Date().getFullYear()} CleanPlanet. Информация на сайте не является публичной офертой.

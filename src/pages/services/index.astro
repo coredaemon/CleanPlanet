@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import Breadcrumbs from '@/components/common/Breadcrumbs.astro';
 import Calculator from '@/components/calculator/Calculator.astro';
-import LeadForm from '@/components/forms/LeadForm.astro';
 import Hero from '@/components/sections/Hero.astro';
 import ServiceCards from '@/components/sections/ServiceCards.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -35,7 +34,6 @@ const { Content } = await page.render();
     lead="Клининг офисов, торговых помещений и объектов с регулярной посещаемостью."
   />
   <section class="container py-10"><Calculator /></section>
-  <section class="container py-14 md:py-20"><LeadForm title="Помочь выбрать услугу" /></section>
 </BaseLayout>
 
 <script

@@ -57,7 +57,7 @@ const reviews = reviewsData as { src: string; width: number; height: number; alt
     </div>
   </section>
 
-  <section id="lead-form" class="container py-14 md:py-20">
+  <section class="container py-14 md:py-20">
     <LeadForm title="Оставить заявку на уборку" />
   </section>
 
@@ -77,7 +77,7 @@ const reviews = reviewsData as { src: string; width: number; height: number; alt
     >
     <button
       id="lightbox-prev"
-      class="absolute left-3 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:left-8"
+      class="absolute bottom-4 left-[calc(50%-4rem)] flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:bottom-auto md:left-8"
       type="button"
       aria-label="Предыдущий отзыв">‹</button
     >
@@ -89,7 +89,7 @@ const reviews = reviewsData as { src: string; width: number; height: number; alt
     />
     <button
       id="lightbox-next"
-      class="absolute right-3 flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:right-8"
+      class="absolute bottom-4 right-[calc(50%-4rem)] flex h-12 w-12 items-center justify-center rounded-pill bg-white/90 text-2xl font-bold text-primary-dark md:bottom-auto md:right-8"
       type="button"
       aria-label="Следующий отзыв">›</button
     >
@@ -164,6 +164,8 @@ const reviews = reviewsData as { src: string; width: number; height: number; alt
   const lightbox = document.getElementById('review-lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
   let current = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
   const show = (i) => {
     current = (i + reviews.length) % reviews.length;
     lightboxImg.src = reviews[current].src;
@@ -190,6 +192,26 @@ const reviews = reviewsData as { src: string; width: number; height: number; alt
   lightbox.addEventListener('click', (e) => {
     if (e.target === lightbox) close();
   });
+  lightbox.addEventListener(
+    'touchstart',
+    (e) => {
+      const touch = e.changedTouches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    },
+    { passive: true },
+  );
+  lightbox.addEventListener(
+    'touchend',
+    (e) => {
+      const touch = e.changedTouches[0];
+      const diffX = touch.clientX - touchStartX;
+      const diffY = touch.clientY - touchStartY;
+      if (Math.abs(diffX) <= 40 || Math.abs(diffX) < Math.abs(diffY)) return;
+      show(diffX < 0 ? current + 1 : current - 1);
+    },
+    { passive: true },
+  );
   document.addEventListener('keydown', (e) => {
     if (lightbox.classList.contains('hidden')) return;
     if (e.key === 'Escape') close();

@@ -117,7 +117,7 @@ if ($phone === '' || !$consent) {
     fail(422, 'Заполните телефон и согласие на обработку данных');
 }
 
-$allowed = ['formType', 'pageTitle', 'service', 'name', 'phone', 'company', 'selectedService', 'objectDetails', 'comment', 'utm'];
+$allowed = ['formType', 'pageTitle', 'service', 'name', 'phone', 'selectedService', 'location', 'mkadDistance', 'urgent', 'comment', 'utm'];
 $lines = [];
 foreach ($allowed as $key) {
     $value = trim((string)($_POST[$key] ?? ''));

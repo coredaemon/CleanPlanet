@@ -4,6 +4,7 @@ import CookieConsent from '@/components/common/CookieConsent.astro';
 import Footer from '@/components/common/Footer.astro';
 import Header from '@/components/common/Header.astro';
 import MobileBottomBar from '@/components/common/MobileBottomBar.astro';
+import LeadFormModal from '@/components/forms/LeadFormModal.astro';
 import '@/styles/global.css';
 
 interface Props {
@@ -42,6 +43,7 @@ const canonicalUrl = new URL(canonical, Astro.site ?? 'https://cleanplanet.examp
     <Footer />
     <MobileBottomBar />
     <CookieConsent />
+    <LeadFormModal />
     <Analytics />
   </body>
 </html>

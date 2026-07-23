@@ -1,0 +1,69 @@
+---
+import LeadForm from './LeadForm.astro';
+---
+
+<div
+  id="lead-form-modal"
+  class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 p-3 md:p-6"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Заявка на уборку"
+>
+  <div class="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-xl">
+    <button
+      class="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-pill bg-white text-2xl font-bold text-primary-dark shadow-sm"
+      type="button"
+      data-close-lead
+      aria-label="Закрыть">×</button
+    >
+    <LeadForm title="Оставить заявку" />
+  </div>
+</div>
+
+<script is:inline>
+  const leadModal = document.getElementById('lead-form-modal');
+  const leadClose = leadModal?.querySelector('[data-close-lead]');
+  let previousActiveElement = null;
+
+  const setModalService = (service) => {
+    const select = leadModal?.querySelector('[data-service-select]');
+    if (!select || !service) return;
+    const option = Array.from(select.options).find(
+      (item) => item.value === service || item.textContent?.trim() === service,
+    );
+    if (option) select.value = option.value;
+  };
+
+  const openLeadModal = (service = '') => {
+    if (!leadModal) return;
+    previousActiveElement = document.activeElement;
+    setModalService(service);
+    leadModal.classList.remove('hidden');
+    leadModal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    leadModal.querySelector('input[name="name"]')?.focus();
+    window.cleanPlanetTrack?.('form_start');
+  };
+
+  const closeLeadModal = () => {
+    if (!leadModal) return;
+    leadModal.classList.add('hidden');
+    leadModal.classList.remove('flex');
+    document.body.style.overflow = '';
+    previousActiveElement?.focus?.();
+  };
+
+  document.querySelectorAll('[data-open-lead]').forEach((trigger) => {
+    trigger.addEventListener('click', () => openLeadModal(trigger.dataset.service || ''));
+  });
+
+  leadClose?.addEventListener('click', closeLeadModal);
+  leadModal?.addEventListener('click', (event) => {
+    if (event.target === leadModal) closeLeadModal();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!leadModal || leadModal.classList.contains('hidden')) return;
+    if (event.key === 'Escape') closeLeadModal();
+  });
+</script>
