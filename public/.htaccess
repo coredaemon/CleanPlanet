@@ -8,10 +8,6 @@ RewriteCond %{HTTP_HOST} ^(?:www\.)?(.+)$ [NC]
 RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-<FilesMatch "\.(php|phtml|php3|php4|php5|phar)$">
+<FilesMatch "^(config|config\.example)\.php$">
   Require all denied
 </FilesMatch>
-
-<Directory "uploads">
-  php_flag engine off
-</Directory>

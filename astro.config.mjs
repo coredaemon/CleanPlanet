@@ -8,7 +8,6 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [tailwind({ applyBaseStyles: false }), sitemap()],
   redirects: {
-    '/services/moyka-okon/': '/services/moyka-vitrin-i-fasadnogo-ostekleniya/',
     '/services/ekouborka/': '/services/uborka-kvartir/',
   },
 });

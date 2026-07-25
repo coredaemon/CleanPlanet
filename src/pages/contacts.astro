@@ -19,10 +19,35 @@ import { contacts } from '@/data/contacts';
         Контакты
       </h1>
       <div class="mt-7 grid gap-4 text-muted">
-        <p><strong class="text-primary-dark">Телефон:</strong> {contacts.phone}</p>
         <p>
-          <strong class="text-primary-dark">Мессенджеры:</strong>
-          {contacts.whatsapp}
+          <strong class="text-primary-dark">Телефон:</strong>
+          <a
+            class="font-semibold text-primary hover:underline"
+            href={contacts.phoneHref}
+            data-track="phone_click"
+          >
+            {contacts.phone}
+          </a>
+        </p>
+        <p>
+          <strong class="text-primary-dark">WhatsApp:</strong>
+          <a
+            class="font-semibold text-primary hover:underline"
+            href={contacts.whatsappHref}
+            data-track="messenger_click"
+          >
+            {contacts.phone}
+          </a>
+        </p>
+        <p>
+          <strong class="text-primary-dark">Telegram:</strong>
+          <a
+            class="font-semibold text-primary hover:underline"
+            href={contacts.telegramHref}
+            data-track="messenger_click"
+          >
+            {contacts.telegramHandle}
+          </a>
         </p>
         <p><strong class="text-primary-dark">Регион:</strong> {contacts.region}</p>
         <p><strong class="text-primary-dark">График:</strong> {contacts.workHours}</p>

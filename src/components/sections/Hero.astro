@@ -1,5 +1,6 @@
 ---
 import Button from '@/components/ui/Button.astro';
+import { contacts } from '@/data/contacts';
 
 interface Props {
   title: string;
@@ -28,6 +29,9 @@ const {
       <p class="mt-5 max-w-2xl text-lg text-muted">{description}</p>
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <Button openLead dataEvent="form_start">Оставить заявку</Button>
+        <Button href={contacts.telegramHref} variant="secondary" dataEvent="messenger_click">
+          Написать в Telegram
+        </Button>
       </div>
       <p class="mt-5 max-w-xl text-sm text-muted">
         Итоговая стоимость зависит от площади, состояния помещения, состава работ и адреса объекта.

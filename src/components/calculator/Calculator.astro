@@ -123,17 +123,31 @@ import LeadForm from '@/components/forms/LeadForm.astro';
     return pricing.ratesByType[cleaningType] ?? null;
   };
 
+  const fixedExtras = (services) =>
+    services.reduce((sum, service) => sum + (pricing.fixedAdditionalServices[service] || 0), 0);
+
+  const needsIndividualCalculation = (data, services) =>
+    data.get('objectType') === 'Дом или коттедж' ||
+    data.get('cleaningType') === 'После ремонта' ||
+    data.get('pollutionLevel') === 'Сильное загрязнение' ||
+    data.get('outsideMkad') ||
+    services.some((service) => pricing.individualAdditionalServices.includes(service));
+
   const estimate = (data) => {
+    const services = data.getAll('additionalServices');
     const rate = ratePerSqm(data.get('objectType'), data.get('cleaningType'));
     const area = Number(data.get('area')) || 0;
-    if (rate === null || !area) return null;
-    return Math.max(Math.round((area * rate) / 100) * 100, pricing.minOrder);
+    if (rate === null || !area || needsIndividualCalculation(data, services)) return null;
+    return (
+      Math.max(Math.round((area * rate) / 100) * 100, pricing.minOrder) + fixedExtras(services)
+    );
   };
 
   const buildSummary = (form) => {
     const data = new FormData(form);
     const services = data.getAll('additionalServices');
     const extras = services.length || data.get('outsideMkad');
+    const fixedExtrasAmount = fixedExtras(services);
     return [
       `${data.get('objectType')}, ${String(data.get('cleaningType')).toLowerCase()} уборка`,
       `${data.get('area')} м², комнат: ${data.get('rooms')}, санузлов: ${data.get('bathrooms')}`,
@@ -143,10 +157,13 @@ import LeadForm from '@/components/forms/LeadForm.astro';
       `Состояние: ${data.get('pollutionLevel')}`,
       data.get('outsideMkad') ? 'Адрес за МКАД' : 'Москва или ближайшая зона',
       `Срочность: ${data.get('urgency')}`,
+      fixedExtrasAmount
+        ? `Фиксированные допработы: от ${fixedExtrasAmount.toLocaleString('ru-RU')} ₽`
+        : '',
       extras
-        ? 'Дополнительные услуги и выезд за МКАД рассчитываются отдельно'
+        ? 'Индивидуальные допработы и выезд за МКАД уточняются отдельно'
         : 'Минимальная стоимость заказа — 5 000 ₽',
-    ];
+    ].filter(Boolean);
   };
 
   calculators.forEach((form) => {
@@ -159,9 +176,12 @@ import LeadForm from '@/components/forms/LeadForm.astro';
         amount === null
           ? 'Предварительная стоимость рассчитывается индивидуально'
           : `Предварительная стоимость от ${amount.toLocaleString('ru-RU')} ₽`;
-      summary.innerHTML = buildSummary(form)
-        .map((item) => `<li>${item}</li>`)
-        .join('');
+      summary.textContent = '';
+      buildSummary(form).forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        summary.append(li);
+      });
     };
     form.addEventListener('input', () => {
       update();

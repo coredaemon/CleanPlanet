@@ -40,6 +40,19 @@ export function ratePerSqm(objectType: string, cleaningType: string): number | n
 }
 
 export function calculateCleaning(input: CalculatorInput): CalculatorResult {
+  const fixedExtras = input.additionalServices.reduce(
+    (sum, service) => sum + (pricing.fixedAdditionalServices[service] ?? 0),
+    0,
+  );
+  const needsIndividualCalculation =
+    input.objectType === 'Дом или коттедж' ||
+    input.cleaningType === 'После ремонта' ||
+    input.pollutionLevel === 'Сильное загрязнение' ||
+    input.outsideMkad ||
+    input.additionalServices.some((service) =>
+      pricing.individualAdditionalServices.includes(service),
+    );
+
   const summary = [
     `${input.objectType}, ${input.cleaningType.toLowerCase()} уборка`,
     `${input.area} м², комнат: ${input.rooms}, санузлов: ${input.bathrooms}`,
@@ -49,23 +62,25 @@ export function calculateCleaning(input: CalculatorInput): CalculatorResult {
     `Состояние: ${input.pollutionLevel}`,
     input.outsideMkad ? 'Адрес за МКАД' : 'Москва или ближайшая зона',
     `Срочность: ${input.urgency}`,
+    fixedExtras ? `Фиксированные допработы: от ${fixedExtras.toLocaleString('ru-RU')} ₽` : '',
   ];
 
   const rate = ratePerSqm(input.objectType, input.cleaningType);
-  if (!pricesConfirmed || rate === null || !input.area) {
+  if (!pricesConfirmed || rate === null || !input.area || needsIndividualCalculation) {
     return {
       pricesConfirmed,
       label: 'Предварительная стоимость рассчитывается индивидуально',
-      summary,
+      summary: summary.filter(Boolean),
       amountFrom: null,
     };
   }
 
-  const amountFrom = Math.max(Math.round((input.area * rate) / 100) * 100, pricing.minOrder);
+  const amountFrom =
+    Math.max(Math.round((input.area * rate) / 100) * 100, pricing.minOrder) + fixedExtras;
   return {
     pricesConfirmed,
     label: `Предварительная стоимость от ${amountFrom.toLocaleString('ru-RU')} ₽`,
-    summary,
+    summary: summary.filter(Boolean),
     amountFrom,
   };
 }

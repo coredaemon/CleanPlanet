@@ -1,5 +1,6 @@
 ---
 import { services } from '@/data/services';
+import { contacts } from '@/data/contacts';
 
 interface Props {
   title?: string;
@@ -26,6 +27,29 @@ const { title = 'Оставьте заявку', service = '', compact = false }
     <p class="mt-2 text-sm text-muted">
       Ответим после обработки заявки. Поля со звёздочкой обязательны.
     </p>
+    <div class="mt-4 flex flex-wrap gap-2 text-sm font-semibold">
+      <a
+        class="rounded-pill border border-border px-3 py-2 text-primary-dark hover:border-primary hover:text-primary"
+        href={contacts.phoneHref}
+        data-track="phone_click"
+      >
+        Позвонить
+      </a>
+      <a
+        class="rounded-pill border border-border px-3 py-2 text-primary-dark hover:border-primary hover:text-primary"
+        href={contacts.whatsappHref}
+        data-track="messenger_click"
+      >
+        WhatsApp
+      </a>
+      <a
+        class="rounded-pill border border-border px-3 py-2 text-primary-dark hover:border-primary hover:text-primary"
+        href={contacts.telegramHref}
+        data-track="messenger_click"
+      >
+        Telegram
+      </a>
+    </div>
   </div>
 
   <input type="hidden" name="formType" value="lead" />
