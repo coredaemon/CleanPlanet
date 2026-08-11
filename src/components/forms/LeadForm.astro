@@ -339,17 +339,23 @@ const { title = 'Оставьте заявку', service = '', compact = false }
           method: 'POST',
           body: formData,
         });
-        if (!response.ok) throw new Error('Request failed');
+        if (!response.ok) {
+          // Сервер присылает понятную причину (лимит частоты, размер файлов,
+          // недоступность доставки) — показываем её, а не общую заглушку.
+          const details = await response.json().catch(() => null);
+          throw new Error(details?.message || 'Request failed');
+        }
         if (form.querySelector('[data-photo-input]')?.files?.length) {
           window.cleanPlanetTrack?.('photo_send');
         }
         window.cleanPlanetTrack?.('lead_success');
         window.location.href = '/thank-you/';
       } catch (error) {
-        status.textContent =
-          error?.message?.startsWith('Можно приложить') || error?.message?.startsWith('Фотографии')
-            ? error.message
-            : 'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
+        const reason = error?.message;
+        const isReadable = reason && reason !== 'Request failed' && !/^[A-Za-z]/.test(reason);
+        status.textContent = isReadable
+          ? reason
+          : 'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
         button.disabled = false;
         button.textContent = 'Отправить заявку';
         window.cleanPlanetTrack?.('form_error');

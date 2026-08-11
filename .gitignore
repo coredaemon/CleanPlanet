@@ -16,6 +16,10 @@ dist/
 public/api/config.php
 **/config.php
 
+# Готовые пакеты для заливки на хостинг — внутри лежит api/config.php
+# с реальной почтой, а репозиторий публичный.
+hosting-package/
+
 # Logs
 *.log
 npm-debug.log*

@@ -11,6 +11,7 @@ const pages = await getCollection('pages');
 const page = pages.find((entry) => entry.data.pageType === 'services');
 if (!page) throw new Error('Services content not found');
 const { Content } = await page.render();
+const siteUrl = Astro.site ?? 'https://clean-planet.online';
 ---
 
 <BaseLayout
@@ -46,7 +47,7 @@ const { Content } = await page.render();
       '@type': 'ListItem',
       position: index + 1,
       name: service.title,
-      url: `https://cleanplanet.example/services/${service.slug}/`,
+      url: new URL(`/services/${service.slug}/`, siteUrl).toString(),
     })),
   })}
 />

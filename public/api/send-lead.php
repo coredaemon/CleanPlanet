@@ -65,10 +65,19 @@ function save_uploaded_photos(array $uploads, array $config): array {
         fail(500, 'Не удалось подготовить загрузку');
     }
 
-    file_put_contents(
-        $uploadDir . '.htaccess',
-        "Options -Indexes\nphp_flag engine off\nRemoveHandler .php .phtml .php3 .php4 .php5 .phar\n"
-    );
+    // Без php_flag: на хостингах с PHP-FPM/CGI эта директива в .htaccess
+    // приводит к 500 Internal Server Error для всей папки.
+    if (!file_exists($uploadDir . '.htaccess')) {
+        $uploadRules = <<<'HTACCESS'
+Options -Indexes
+RemoveHandler .php .phtml .php3 .php4 .php5 .phar
+AddType text/plain .php .phtml .php3 .php4 .php5 .phar
+<FilesMatch "\.(php|phtml|php3|php4|php5|phar)$">
+  Require all denied
+</FilesMatch>
+HTACCESS;
+        file_put_contents($uploadDir . '.htaccess', $uploadRules . "\n");
+    }
 
     $allowedMime = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
     $saved = [];
@@ -117,33 +126,95 @@ if ($phone === '' || !$consent) {
     fail(422, 'Заполните телефон и согласие на обработку данных');
 }
 
-$allowed = ['formType', 'pageTitle', 'service', 'name', 'phone', 'selectedService', 'location', 'mkadDistance', 'urgent', 'comment', 'utm'];
+$labels = [
+    'name' => 'Имя',
+    'phone' => 'Телефон',
+    'selectedService' => 'Услуга',
+    'location' => 'Где убираться',
+    'mkadDistance' => 'Расстояние от МКАД, км',
+    'urgent' => 'Срочная уборка',
+    'comment' => 'Комментарий',
+    'service' => 'Со страницы услуги',
+    'pageTitle' => 'Страница',
+    'utm' => 'UTM',
+    'formType' => 'Тип формы',
+];
+
+// Письмо уходит как text/plain, поэтому HTML-экранирование здесь не нужно
+// (иначе «кухня & ванная» превратится в «кухня &amp; ванная»).
+// Достаточно убрать управляющие символы и переводы строк из значений.
+function clean_value(string $value): string {
+    $value = str_replace(["\r", "\n"], ' ', $value);
+    return trim(preg_replace('/[\x00-\x1F\x7F]/u', '', $value) ?? '');
+}
+
 $lines = [];
-foreach ($allowed as $key) {
-    $value = trim((string)($_POST[$key] ?? ''));
+foreach ($labels as $key => $label) {
+    $value = clean_value(trim((string)($_POST[$key] ?? '')));
     if ($value !== '') {
-        $lines[] = htmlspecialchars($key, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . ': ' . htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $lines[] = $label . ': ' . $value;
     }
 }
 
 $savedPhotos = save_uploaded_photos(normalized_uploads($_FILES['photos'] ?? []), $config);
 if ($savedPhotos) {
-    $lines[] = 'photos: ' . htmlspecialchars(implode(', ', $savedPhotos), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $lines[] = 'Фотографии: ' . implode(', ', $savedPhotos);
 }
 
 $subject = 'Заявка CleanPlanet';
 $body = implode("\n", $lines);
-$headers = 'From: ' . $config['from_email'];
 
-if (!empty($config['lead_email'])) {
-    @mail($config['lead_email'], $subject, $body, $headers);
+// Резервная запись заявки в защищённый лог — чтобы лид не потерялся,
+// даже если и почта, и Telegram недоступны.
+$logDir = __DIR__ . '/leads/';
+if (!is_dir($logDir)) {
+    @mkdir($logDir, 0755, true);
+}
+if (is_dir($logDir)) {
+    if (!file_exists($logDir . '.htaccess')) {
+        @file_put_contents($logDir . '.htaccess', "Require all denied\nOrder allow,deny\nDeny from all\n");
+    }
+    @file_put_contents(
+        $logDir . 'leads.log',
+        '[' . date('Y-m-d H:i:s') . "]\n" . $body . "\n\n",
+        FILE_APPEND | LOCK_EX
+    );
 }
 
+$mailSent = false;
+if (!empty($config['lead_email'])) {
+    // Кириллица требует MIME-заголовков: без них тема и тело придут кракозябрами.
+    $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $headers = implode("\r\n", [
+        'From: ' . $config['from_email'],
+        'Reply-To: ' . $config['from_email'],
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    ]);
+    $mailSent = @mail($config['lead_email'], $encodedSubject, $body, $headers);
+}
+
+$telegramSent = false;
 if (!empty($config['telegram_bot_token']) && !empty($config['telegram_chat_id'])) {
     $url = 'https://api.telegram.org/bot' . $config['telegram_bot_token'] . '/sendMessage';
     $payload = http_build_query(['chat_id' => $config['telegram_chat_id'], 'text' => $subject . "\n" . $body]);
-    $context = stream_context_create(['http' => ['method' => 'POST', 'header' => 'Content-Type: application/x-www-form-urlencoded', 'content' => $payload]]);
-    @file_get_contents($url, false, $context);
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => 'Content-Type: application/x-www-form-urlencoded',
+            'content' => $payload,
+            'timeout' => 8,
+            'ignore_errors' => true,
+        ],
+    ]);
+    $telegramSent = @file_get_contents($url, false, $context) !== false;
+}
+
+// Если ни один канал доставки не сработал — честно говорим об этом,
+// иначе клиент увидит «успешно», а заявку никто не получит.
+if (!$mailSent && !$telegramSent) {
+    fail(502, 'Не удалось отправить заявку. Позвоните нам или напишите в WhatsApp.');
 }
 
 $_SESSION['last_lead_at'] = $now;

@@ -6,6 +6,8 @@ interface Crumb {
 
 const { items = [] } = Astro.props as { items: Crumb[] };
 const all = [{ label: 'Главная', href: '/' }, ...items];
+// Домен берём из astro.config (Astro.site), чтобы микроразметка не разъезжалась
+const siteUrl = Astro.site ?? 'https://clean-planet.online';
 ---
 
 <nav class="container py-5 text-sm text-muted" aria-label="Хлебные крошки">
@@ -37,7 +39,7 @@ const all = [{ label: 'Главная', href: '/' }, ...items];
       '@type': 'ListItem',
       position: index + 1,
       name: item.label,
-      item: `https://cleanplanet.example${item.href}`,
+      item: new URL(item.href, siteUrl).toString(),
     })),
   })}
 />

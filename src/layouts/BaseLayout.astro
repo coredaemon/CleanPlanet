@@ -15,7 +15,10 @@ interface Props {
 }
 
 const { title, description, canonical = Astro.url.pathname, noindex = false } = Astro.props;
-const canonicalUrl = new URL(canonical, Astro.site ?? 'https://cleanplanet.example').toString();
+const siteUrl = Astro.site ?? 'https://clean-planet.online';
+const canonicalUrl = new URL(canonical, siteUrl).toString();
+// og:image должен быть абсолютным, иначе соцсети и мессенджеры не подтянут превью
+const ogImageUrl = new URL('/logo-mark-512.png', siteUrl).toString();
 ---
 
 <!doctype html>
@@ -32,7 +35,7 @@ const canonicalUrl = new URL(canonical, Astro.site ?? 'https://cleanplanet.examp
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:image" content="/logo-mark-512.png" />
+    <meta property="og:image" content={ogImageUrl} />
     <slot name="head" />
   </head>
   <body>

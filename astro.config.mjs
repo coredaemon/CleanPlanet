@@ -3,7 +3,7 @@ import tailwind from '@astrojs/tailwind';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
-  site: 'https://cleanplanet.example',
+  site: 'https://clean-planet.online',
   output: 'static',
   trailingSlash: 'always',
   integrations: [tailwind({ applyBaseStyles: false }), sitemap()],
