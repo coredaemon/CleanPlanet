@@ -193,175 +193,193 @@ const { title = 'Оставьте заявку', service = '', compact = false }
 </form>
 
 <script is:inline>
-  const PHOTO_LIMIT = 5;
-  const PHOTO_MAX_SIDE = 1600;
-  const PHOTO_QUALITY = 0.8;
-  const PHOTO_MAX_TOTAL = 12 * 1024 * 1024;
+  // Компонент рендерится на странице дважды (форма в разделе + форма в модалке),
+  // поэтому этот скрипт попадает в документ дважды. Без изоляции второй экземпляр
+  // падал с «Identifier 'PHOTO_LIMIT' has already been declared», и форма в модалке
+  // оставалась без обработчика — отправлялась перезагрузкой страницы на JSON-ответ.
+  (function () {
+    const PHOTO_LIMIT = 5;
+    const PHOTO_MAX_SIDE = 1600;
+    const PHOTO_QUALITY = 0.8;
+    const PHOTO_MAX_TOTAL = 12 * 1024 * 1024;
 
-  const fileToImage = (file) =>
-    new Promise((resolve, reject) => {
-      if ('createImageBitmap' in window) {
-        createImageBitmap(file).then(resolve).catch(reject);
-        return;
-      }
+    const fileToImage = (file) =>
+      new Promise((resolve, reject) => {
+        if ('createImageBitmap' in window) {
+          createImageBitmap(file).then(resolve).catch(reject);
+          return;
+        }
 
-      const image = new Image();
-      const url = URL.createObjectURL(file);
-      image.onload = () => {
-        URL.revokeObjectURL(url);
-        resolve(image);
-      };
-      image.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject(new Error('Image load failed'));
-      };
-      image.src = url;
-    });
+        const image = new Image();
+        const url = URL.createObjectURL(file);
+        image.onload = () => {
+          URL.revokeObjectURL(url);
+          resolve(image);
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error('Image load failed'));
+        };
+        image.src = url;
+      });
 
-  const canvasToBlob = (canvas) =>
-    new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', PHOTO_QUALITY));
+    const canvasToBlob = (canvas) =>
+      new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', PHOTO_QUALITY));
 
-  const compressPhoto = async (file) => {
-    if (!file.type.startsWith('image/') || typeof HTMLCanvasElement === 'undefined') return file;
-
-    try {
-      const image = await fileToImage(file);
-      const ratio = Math.min(1, PHOTO_MAX_SIDE / Math.max(image.width, image.height));
-      if (ratio === 1 && file.size <= 2 * 1024 * 1024) return file;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(image.width * ratio));
-      canvas.height = Math.max(1, Math.round(image.height * ratio));
-      const context = canvas.getContext('2d', { alpha: false });
-      if (!context) return file;
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-
-      const blob = await canvasToBlob(canvas);
-      if (!blob) return file;
-      const safeName = file.name.replace(/\.[^.]+$/, '') || 'photo';
-      return new File([blob], `${safeName}.jpg`, { type: 'image/jpeg' });
-    } catch {
-      return file;
-    }
-  };
-
-  const buildFormData = async (form, status) => {
-    const formData = new FormData(form);
-    const input = form.querySelector('[data-photo-input]');
-    const files = Array.from(input?.files || []);
-    formData.delete('photos[]');
-
-    if (!files.length) return formData;
-    if (files.length > PHOTO_LIMIT) {
-      throw new Error(`Можно приложить не больше ${PHOTO_LIMIT} фотографий.`);
-    }
-
-    status.textContent = 'Сжимаем фотографии перед отправкой.';
-    let totalSize = 0;
-    for (const file of files) {
-      const prepared = await compressPhoto(file);
-      totalSize += prepared.size;
-      if (totalSize > PHOTO_MAX_TOTAL) {
-        throw new Error(
-          'Фотографии после сжатия всё ещё слишком большие. Оставьте до 5 самых важных кадров.',
-        );
-      }
-      formData.append('photos[]', prepared, prepared.name);
-    }
-
-    return formData;
-  };
-
-  document.querySelectorAll('.lead-form').forEach((form) => {
-    if (form.dataset.leadReady === 'true') return;
-    form.dataset.leadReady = 'true';
-    const status = form.querySelector('.form-status');
-    const utmInput = form.querySelector('[data-utm-field]');
-    const phoneInput = form.querySelector('[data-phone-mask]');
-    const mkadField = form.querySelector('[data-mkad-field]');
-    const locationInputs = form.querySelectorAll('[data-location-radio]');
-    if (utmInput) utmInput.value = sessionStorage.getItem('cleanplanet_utm') || '';
-
-    const getPhoneDigits = () => {
-      const digits = (phoneInput?.value || '').replace(/\D/g, '');
-      return digits.startsWith('7') || digits.startsWith('8')
-        ? digits.slice(1, 11)
-        : digits.slice(0, 10);
-    };
-
-    const formatPhone = () => {
-      if (!phoneInput) return;
-      const digits = getPhoneDigits();
-      let value = '+7';
-      if (digits.length) value += ` (${digits.slice(0, 3)}`;
-      if (digits.length >= 3) value += ')';
-      if (digits.length > 3) value += ` ${digits.slice(3, 6)}`;
-      if (digits.length > 6) value += `-${digits.slice(6, 8)}`;
-      if (digits.length > 8) value += `-${digits.slice(8, 10)}`;
-      phoneInput.value = value;
-    };
-
-    const updateLocation = () => {
-      const outside = form.querySelector('input[name="location"]:checked')?.value === 'За МКАД';
-      mkadField?.classList.toggle('hidden', !outside);
-      mkadField?.classList.toggle('grid', outside);
-    };
-
-    phoneInput?.addEventListener('input', formatPhone);
-    locationInputs.forEach((input) => input.addEventListener('change', updateLocation));
-    updateLocation();
-
-    form.addEventListener('input', () => window.cleanPlanetTrack?.('form_start'), { once: true });
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      if (phoneInput && getPhoneDigits().length !== 10) {
-        phoneInput.setCustomValidity('Введите 10 цифр номера после +7.');
-      } else {
-        phoneInput?.setCustomValidity('');
-      }
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        status.textContent = 'Проверьте обязательные поля и согласие на обработку данных.';
-        status.classList.remove('hidden');
-        window.cleanPlanetTrack?.('form_error');
-        return;
-      }
-
-      const button = form.querySelector('button[type="submit"]');
-      button.disabled = true;
-      button.textContent = 'Отправляем...';
-      status.textContent = 'Заявка отправляется.';
-      status.classList.remove('hidden');
+    const compressPhoto = async (file) => {
+      if (!file.type.startsWith('image/') || typeof HTMLCanvasElement === 'undefined') return file;
 
       try {
-        const formData = await buildFormData(form, status);
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: formData,
-        });
-        if (!response.ok) {
-          // Сервер присылает понятную причину (лимит частоты, размер файлов,
-          // недоступность доставки) — показываем её, а не общую заглушку.
-          const details = await response.json().catch(() => null);
-          throw new Error(details?.message || 'Request failed');
-        }
-        if (form.querySelector('[data-photo-input]')?.files?.length) {
-          window.cleanPlanetTrack?.('photo_send');
-        }
-        window.cleanPlanetTrack?.('lead_success');
-        window.location.href = '/thank-you/';
-      } catch (error) {
-        const reason = error?.message;
-        const isReadable = reason && reason !== 'Request failed' && !/^[A-Za-z]/.test(reason);
-        status.textContent = isReadable
-          ? reason
-          : 'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
-        button.disabled = false;
-        button.textContent = 'Отправить заявку';
-        window.cleanPlanetTrack?.('form_error');
+        const image = await fileToImage(file);
+        const ratio = Math.min(1, PHOTO_MAX_SIDE / Math.max(image.width, image.height));
+        if (ratio === 1 && file.size <= 2 * 1024 * 1024) return file;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(image.width * ratio));
+        canvas.height = Math.max(1, Math.round(image.height * ratio));
+        const context = canvas.getContext('2d', { alpha: false });
+        if (!context) return file;
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const blob = await canvasToBlob(canvas);
+        if (!blob) return file;
+        const safeName = file.name.replace(/\.[^.]+$/, '') || 'photo';
+        return new File([blob], `${safeName}.jpg`, { type: 'image/jpeg' });
+      } catch {
+        return file;
       }
-    });
-  });
+    };
+
+    const buildFormData = async (form, status) => {
+      const formData = new FormData(form);
+      const input = form.querySelector('[data-photo-input]');
+      const files = Array.from(input?.files || []);
+      formData.delete('photos[]');
+
+      if (!files.length) return formData;
+      if (files.length > PHOTO_LIMIT) {
+        throw new Error(`Можно приложить не больше ${PHOTO_LIMIT} фотографий.`);
+      }
+
+      status.textContent = 'Сжимаем фотографии перед отправкой.';
+      let totalSize = 0;
+      for (const file of files) {
+        const prepared = await compressPhoto(file);
+        totalSize += prepared.size;
+        if (totalSize > PHOTO_MAX_TOTAL) {
+          throw new Error(
+            'Фотографии после сжатия всё ещё слишком большие. Оставьте до 5 самых важных кадров.',
+          );
+        }
+        formData.append('photos[]', prepared, prepared.name);
+      }
+
+      return formData;
+    };
+
+    const initLeadForms = () => {
+      document.querySelectorAll('.lead-form').forEach((form) => {
+        if (form.dataset.leadReady === 'true') return;
+        form.dataset.leadReady = 'true';
+        const status = form.querySelector('.form-status');
+        const utmInput = form.querySelector('[data-utm-field]');
+        const phoneInput = form.querySelector('[data-phone-mask]');
+        const mkadField = form.querySelector('[data-mkad-field]');
+        const locationInputs = form.querySelectorAll('[data-location-radio]');
+        if (utmInput) utmInput.value = sessionStorage.getItem('cleanplanet_utm') || '';
+
+        const getPhoneDigits = () => {
+          const digits = (phoneInput?.value || '').replace(/\D/g, '');
+          return digits.startsWith('7') || digits.startsWith('8')
+            ? digits.slice(1, 11)
+            : digits.slice(0, 10);
+        };
+
+        const formatPhone = () => {
+          if (!phoneInput) return;
+          const digits = getPhoneDigits();
+          let value = '+7';
+          if (digits.length) value += ` (${digits.slice(0, 3)}`;
+          if (digits.length >= 3) value += ')';
+          if (digits.length > 3) value += ` ${digits.slice(3, 6)}`;
+          if (digits.length > 6) value += `-${digits.slice(6, 8)}`;
+          if (digits.length > 8) value += `-${digits.slice(8, 10)}`;
+          phoneInput.value = value;
+        };
+
+        const updateLocation = () => {
+          const outside = form.querySelector('input[name="location"]:checked')?.value === 'За МКАД';
+          mkadField?.classList.toggle('hidden', !outside);
+          mkadField?.classList.toggle('grid', outside);
+        };
+
+        phoneInput?.addEventListener('input', formatPhone);
+        locationInputs.forEach((input) => input.addEventListener('change', updateLocation));
+        updateLocation();
+
+        form.addEventListener('input', () => window.cleanPlanetTrack?.('form_start'), {
+          once: true,
+        });
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          if (phoneInput && getPhoneDigits().length !== 10) {
+            phoneInput.setCustomValidity('Введите 10 цифр номера после +7.');
+          } else {
+            phoneInput?.setCustomValidity('');
+          }
+          if (!form.checkValidity()) {
+            form.reportValidity();
+            status.textContent = 'Проверьте обязательные поля и согласие на обработку данных.';
+            status.classList.remove('hidden');
+            window.cleanPlanetTrack?.('form_error');
+            return;
+          }
+
+          const button = form.querySelector('button[type="submit"]');
+          button.disabled = true;
+          button.textContent = 'Отправляем...';
+          status.textContent = 'Заявка отправляется.';
+          status.classList.remove('hidden');
+
+          try {
+            const formData = await buildFormData(form, status);
+            const response = await fetch(form.action, {
+              method: 'POST',
+              body: formData,
+            });
+            if (!response.ok) {
+              // Сервер присылает понятную причину (лимит частоты, размер файлов,
+              // недоступность доставки) — показываем её, а не общую заглушку.
+              const details = await response.json().catch(() => null);
+              throw new Error(details?.message || 'Request failed');
+            }
+            if (form.querySelector('[data-photo-input]')?.files?.length) {
+              window.cleanPlanetTrack?.('photo_send');
+            }
+            window.cleanPlanetTrack?.('lead_success');
+            window.location.href = '/thank-you/';
+          } catch (error) {
+            const reason = error?.message;
+            const isReadable = reason && reason !== 'Request failed' && !/^[A-Za-z]/.test(reason);
+            status.textContent = isReadable
+              ? reason
+              : 'Не удалось отправить заявку автоматически. Данные остались в форме, попробуйте ещё раз или свяжитесь удобным способом.';
+            button.disabled = false;
+            button.textContent = 'Отправить заявку';
+            window.cleanPlanetTrack?.('form_error');
+          }
+        });
+      });
+    };
+
+    // Модалка находится ниже по документу, поэтому ждём готовности DOM,
+    // иначе обработчик до неё не доберётся.
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLeadForms);
+    } else {
+      initLeadForms();
+    }
+  })();
 </script>
 
 <style>
