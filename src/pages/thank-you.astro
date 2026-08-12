@@ -16,9 +16,35 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       Мы получили обращение. После обработки заявки с вами свяжутся для уточнения деталей и
       предварительной стоимости.
     </p>
+    <p class="mt-6 text-muted">
+      Через <span data-thanks-timer>5</span>&nbsp;секунд вы вернётесь на главную страницу.
+    </p>
     <a
       class="mt-8 inline-flex min-h-12 items-center justify-center rounded-medium bg-primary px-5 font-semibold text-white"
       href="/">Вернуться на главную</a
     >
   </section>
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    const el = document.querySelector('[data-thanks-timer]');
+    if (!el) return;
+    // Уважаем prefers-reduced-motion: не уводим страницу автоматически,
+    // если пользователь просил не двигать интерфейс без его участия.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.closest('p')?.remove();
+      return;
+    }
+    let seconds = 5;
+    const timer = setInterval(() => {
+      seconds -= 1;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = '/';
+      } else {
+        el.textContent = String(seconds);
+      }
+    }, 1000);
+  })();
+</script>
