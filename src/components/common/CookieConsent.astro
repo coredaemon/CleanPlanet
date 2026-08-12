@@ -28,10 +28,8 @@
 <script is:inline>
   const key = 'cleanplanet_cookie_consent';
   const banner = document.querySelector('#cookie-consent');
-  const loadAnalytics = () => {
-    window.cleanPlanetAnalyticsAllowed = true;
-  };
-  if (localStorage.getItem(key) === 'accepted') loadAnalytics();
+  // Реальную загрузку счётчика делает Analytics.astro — здесь только вызываем её.
+  const loadAnalytics = () => window.cleanPlanetLoadAnalytics?.();
   if (!localStorage.getItem(key)) banner?.classList.remove('hidden');
   document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => {
     localStorage.setItem(key, 'accepted');

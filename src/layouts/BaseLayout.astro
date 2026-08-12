@@ -45,8 +45,9 @@ const ogImageUrl = new URL('/logo-mark-512.png', siteUrl).toString();
     </main>
     <Footer />
     <MobileBottomBar />
+    {/* Analytics раньше CookieConsent: баннер вызывает cleanPlanetLoadAnalytics отсюда */}
+    <Analytics />
     <CookieConsent />
     <LeadFormModal />
-    <Analytics />
   </body>
 </html>

@@ -22,7 +22,7 @@ export const contacts = {
     address: '127287, г. Москва, ул. Хуторская 2-я, д. 38А, стр. 26',
   },
   analytics: {
-    yandexMetrikaId: '',
+    yandexMetrikaId: '111523203',
     googleVerification: '',
     yandexWebmasterVerification: '',
   },
