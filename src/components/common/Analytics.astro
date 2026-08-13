@@ -5,15 +5,9 @@ const metrikaId = contacts.analytics.yandexMetrikaId;
 ---
 
 <script is:inline define:vars={{ metrikaId }}>
-  const CONSENT_KEY = 'cleanplanet_cookie_consent';
-  const METRIKA_SRC = 'https://mc.yandex.ru/metrika/tag.js?id=' + metrikaId;
-
-  // Счётчик подключается только после согласия в cookie-баннере (152-ФЗ).
-  // Функция идемпотентна: повторный вызов ничего не делает.
-  window.cleanPlanetLoadAnalytics = function () {
-    if (!metrikaId || window.cleanPlanetAnalyticsAllowed) return;
-    window.cleanPlanetAnalyticsAllowed = true;
-
+  // Счётчик подключается сразу: посетителя предупреждает уведомление внизу
+  // страницы («продолжая пользоваться сайтом, вы соглашаетесь…»).
+  if (metrikaId) {
     (function (m, e, t, r, i, k, a) {
       m[i] =
         m[i] ||
@@ -29,7 +23,7 @@ const metrikaId = contacts.analytics.yandexMetrikaId;
       k.async = 1;
       k.src = r;
       a.parentNode.insertBefore(k, a);
-    })(window, document, 'script', METRIKA_SRC, 'ym');
+    })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=' + metrikaId, 'ym');
 
     window.ym(metrikaId, 'init', {
       ssr: true,
@@ -41,15 +35,10 @@ const metrikaId = contacts.analytics.yandexMetrikaId;
       accurateTrackBounce: true,
       trackLinks: true,
     });
-  };
-
-  // Согласие уже дано в прошлый визит — подключаем сразу.
-  if (localStorage.getItem(CONSENT_KEY) === 'accepted') window.cleanPlanetLoadAnalytics();
+  }
 
   window.cleanPlanetTrack = function (eventName, payload = {}) {
-    if (window.ym && window.cleanPlanetAnalyticsAllowed) {
-      window.ym(metrikaId, 'reachGoal', eventName, payload);
-    }
+    if (window.ym && metrikaId) window.ym(metrikaId, 'reachGoal', eventName, payload);
   };
 
   const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
@@ -67,3 +56,13 @@ const metrikaId = contacts.analytics.yandexMetrikaId;
     if (target) window.cleanPlanetTrack(target.dataset.track);
   });
 </script>
+
+<noscript>
+  <div>
+    <img
+      src={`https://mc.yandex.ru/watch/${metrikaId}`}
+      style="position:absolute; left:-9999px;"
+      alt=""
+    />
+  </div>
+</noscript>

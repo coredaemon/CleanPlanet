@@ -6,7 +6,6 @@ declare module '*.json' {
 }
 
 interface Window {
-  cleanPlanetAnalyticsAllowed?: boolean;
   cleanPlanetTrack?: (eventName: string, payload?: Record<string, unknown>) => void;
   ym?: (...args: unknown[]) => void;
 }

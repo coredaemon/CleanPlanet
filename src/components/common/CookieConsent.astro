@@ -2,42 +2,42 @@
 
 ---
 
+<!--
+  Информационное уведомление, а не запрос согласия: аналитика работает сразу,
+  посетителя предупреждаем. Кнопка «Ок» просто прячет плашку.
+  На мобильных поднято над нижней панелью действий.
+-->
 <div
-  id="cookie-consent"
-  class="fixed bottom-20 left-4 right-4 z-50 hidden rounded-large border border-border bg-white p-4 shadow-md md:bottom-5 md:left-auto md:right-5 md:max-w-md"
+  id="cookie-notice"
+  class="fixed inset-x-3 bottom-[84px] z-50 hidden items-center gap-3 rounded-medium border border-border bg-white px-3 py-2 shadow-md md:inset-x-auto md:bottom-4 md:right-4 md:max-w-md"
+  role="note"
 >
-  <p class="text-sm text-muted">
-    Сайт использует cookie и может подключать аналитику после вашего согласия. Подробнее — в
-    <a class="font-semibold text-primary underline" href="/privacy/">политике конфиденциальности</a
-    >.
+  <p class="flex-1 text-xs leading-snug text-muted">
+    Мы используем cookie и Яндекс.Метрику. Оставаясь на сайте, вы соглашаетесь с этим —
+    <a class="font-semibold text-primary underline" href="/privacy/">подробнее</a>.
   </p>
-  <div class="mt-4 flex gap-2">
-    <button
-      class="min-h-11 rounded-medium bg-primary px-4 text-sm font-semibold text-white"
-      type="button"
-      data-cookie-accept>Принять</button
-    >
-    <button
-      class="min-h-11 rounded-medium border border-border px-4 text-sm font-semibold text-primary-dark"
-      type="button"
-      data-cookie-decline>Отклонить</button
-    >
-  </div>
+  <button
+    class="shrink-0 rounded-medium bg-primary px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-hover"
+    type="button"
+    data-cookie-ok>Ок</button
+  >
 </div>
 
 <script is:inline>
-  const key = 'cleanplanet_cookie_consent';
-  const banner = document.querySelector('#cookie-consent');
-  // Реальную загрузку счётчика делает Analytics.astro — здесь только вызываем её.
-  const loadAnalytics = () => window.cleanPlanetLoadAnalytics?.();
-  if (!localStorage.getItem(key)) banner?.classList.remove('hidden');
-  document.querySelector('[data-cookie-accept]')?.addEventListener('click', () => {
-    localStorage.setItem(key, 'accepted');
-    banner?.classList.add('hidden');
-    loadAnalytics();
-  });
-  document.querySelector('[data-cookie-decline]')?.addEventListener('click', () => {
-    localStorage.setItem(key, 'declined');
-    banner?.classList.add('hidden');
-  });
+  (function () {
+    const KEY = 'cleanplanet_cookie_notice';
+    const notice = document.getElementById('cookie-notice');
+    if (!notice) return;
+
+    if (!localStorage.getItem(KEY)) {
+      notice.classList.remove('hidden');
+      notice.classList.add('flex');
+    }
+
+    notice.querySelector('[data-cookie-ok]')?.addEventListener('click', () => {
+      localStorage.setItem(KEY, 'ok');
+      notice.classList.add('hidden');
+      notice.classList.remove('flex');
+    });
+  })();
 </script>
